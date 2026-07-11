@@ -1,0 +1,592 @@
+@import './styles/tokens.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--map-buff-deep);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--amber-deep);
+  outline-offset: 2px;
+}
+
+/* ───────── 레이아웃 ───────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 16px 8px;
+  border-bottom: 2px solid var(--ink);
+  background: var(--map-buff);
+  flex-wrap: wrap;
+}
+
+.app-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 0.14em;
+}
+
+.app-title .title-year {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--nk);
+  margin-right: 6px;
+}
+
+.app-subtitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+}
+
+.map-area {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--map-buff);
+}
+
+.map-canvas-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.map-canvas-wrap svg {
+  display: block;
+  touch-action: none;
+  cursor: grab;
+}
+
+.map-canvas-wrap svg:active {
+  cursor: grabbing;
+}
+
+.side-panel {
+  border-left: 2px solid var(--ink);
+  background: var(--panel-paper);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+@media (max-width: 860px) {
+  .app-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 54%) minmax(0, 1fr);
+  }
+
+  .side-panel {
+    border-left: none;
+    border-top: 2px solid var(--ink);
+  }
+}
+
+/* ───────── DayRail ───────── */
+.day-rail {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  border-top: 1.5px solid var(--ink);
+  background: var(--map-buff);
+  scrollbar-width: thin;
+}
+
+.day-chip {
+  flex: 0 0 auto;
+  padding: 5px 12px 4px;
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.day-chip:hover {
+  border-color: var(--ink);
+  background: rgba(35, 41, 46, 0.06);
+}
+
+.day-chip[aria-pressed='true'] {
+  background: var(--amber);
+  border-color: var(--amber-deep);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--amber-deep);
+}
+
+/* ───────── 지도 SVG 공통 ───────── */
+.map-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--map-buff);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+  user-select: none;
+}
+
+.map-label--water {
+  fill: var(--water-deep);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.map-label--mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.event-marker {
+  cursor: pointer;
+  outline: none;
+}
+
+.event-marker:focus-visible {
+  outline: 2px solid var(--amber-deep);
+  outline-offset: 2px;
+}
+
+@keyframes marker-pulse {
+  0% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+.pulse-ring {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: marker-pulse 1.1s ease-out 1 forwards;
+}
+
+@keyframes arrow-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.arrow-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: arrow-draw 1.3s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arrow-draw,
+  .fade-in,
+  .pulse-ring {
+    animation: none;
+  }
+
+  .arrow-draw {
+    stroke-dashoffset: 0;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ───────── 범례 ───────── */
+.legend-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  padding: 5px 10px;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--panel-paper);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  box-shadow: var(--shadow-card);
+}
+
+.legend-card {
+  position: absolute;
+  top: 44px;
+  right: 10px;
+  z-index: 5;
+  width: 212px;
+  max-height: calc(100% - 60px);
+  overflow-y: auto;
+  padding: 10px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--panel-paper);
+  box-shadow: var(--shadow-card);
+  font-size: 11px;
+}
+
+.legend-card h3 {
+  margin: 8px 0 4px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.legend-card h3:first-child {
+  margin-top: 0;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.legend-row svg {
+  flex: 0 0 auto;
+}
+
+.legend-layers label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.legend-layers input {
+  accent-color: var(--amber-deep);
+}
+
+/* ───────── 패널 ───────── */
+.panel-inner {
+  padding: 14px 16px 24px;
+}
+
+.panel-kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+
+.panel-title {
+  margin: 0 0 10px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+}
+
+.panel-section {
+  margin-top: 14px;
+}
+
+.panel-section h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ink-soft);
+  padding-bottom: 3px;
+}
+
+.panel-body {
+  font-size: 13.5px;
+  line-height: 1.72;
+  margin: 0;
+}
+
+.fact-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.fact-table th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--ink-soft);
+  padding: 3px 10px 3px 0;
+  white-space: nowrap;
+  vertical-align: top;
+  width: 62px;
+}
+
+.fact-table td {
+  padding: 3px 0;
+  line-height: 1.5;
+}
+
+.headline-box {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--amber-deep);
+  background: rgba(224, 166, 60, 0.14);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.headline-box .headline-date {
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin-right: 6px;
+}
+
+/* 배지·칩 */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+}
+
+.badge--rok {
+  background: var(--rok);
+  color: #fff;
+}
+
+.badge--nk {
+  background: var(--nk);
+  color: #fff;
+}
+
+.badge--mixed {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.badge--none {
+  background: rgba(35, 41, 46, 0.1);
+  color: var(--ink-soft);
+}
+
+.badge--key {
+  background: var(--amber);
+  color: var(--ink);
+  border-color: var(--amber-deep);
+}
+
+.unit-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.unit-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2.5px 8px;
+  border-radius: 3px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1.2px solid;
+}
+
+.unit-chip--ROK {
+  border-color: var(--rok);
+  color: var(--rok);
+  background: var(--rok-soft);
+}
+
+.unit-chip--NK {
+  border-color: var(--nk);
+  color: var(--nk);
+  background: var(--nk-soft);
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-soft);
+  border: 1px dashed var(--ink-faint);
+  border-radius: 3px;
+  padding: 1.5px 6px;
+}
+
+.event-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.event-meta .meta-datetime {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.close-btn {
+  float: right;
+  margin-left: 8px;
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  background: rgba(35, 41, 46, 0.08);
+}
+
+/* ───────── StatBar ───────── */
+.statbar {
+  font-size: 12px;
+}
+
+.statbar-row {
+  margin-bottom: 10px;
+}
+
+.statbar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 3px;
+}
+
+.statbar-label .who {
+  font-weight: 700;
+}
+
+.statbar-label .val {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+.statbar-track {
+  height: 14px;
+  background: rgba(35, 41, 46, 0.07);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+
+.statbar-fill--rok {
+  height: 100%;
+  background: var(--rok);
+  border-radius: 4px;
+}
+
+.statbar-fill--nk {
+  height: 100%;
+  background: var(--nk);
+  border-radius: 4px 0 0 4px;
+}
+
+.statbar-fill--range {
+  height: 100%;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(176, 42, 42, 0.45) 0 4px,
+    rgba(176, 42, 42, 0.15) 4px 8px
+  );
+  border-radius: 0 4px 4px 0;
+  margin-left: 2px;
+}
+
+.statbar-note {
+  margin: 6px 0 0;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.source-note {
+  margin-top: 18px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--ink-faint);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  line-height: 1.6;
+}

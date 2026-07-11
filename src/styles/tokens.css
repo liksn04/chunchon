@@ -1,0 +1,31 @@
+:root {
+  /* ── 야전 상황도 팔레트 ── */
+  --map-buff: #e4dec9;          /* 지도 종이 */
+  --map-buff-deep: #d8d1ba;
+  --panel-paper: #efe9d8;
+  --contour-bistre: #8a6d42;    /* 등고선·도로 */
+  --ridge-shadow: rgba(124, 107, 84, 0.28);
+  --water-teal: #6e9b9e;
+  --water-deep: #4e7c80;
+  --grid-slate: rgba(58, 74, 92, 0.12);
+  --ink: #23292e;               /* 잉크/텍스트 */
+  --ink-soft: #4a5158;
+  --ink-faint: #757b81;
+  --rok: #1f4e9c;               /* 국군 코발트 */
+  --rok-soft: rgba(31, 78, 156, 0.14);
+  --nk: #b02a2a;                /* 북한 크림슨 */
+  --nk-soft: rgba(176, 42, 42, 0.14);
+  --amber: #e0a63c;             /* 그리스펜슬 앰버 (강조/선택) */
+  --amber-deep: #b57f1c;
+
+  /* ── 타이포 ── */
+  --font-body: 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo',
+    'Malgun Gothic', sans-serif;
+  --font-display: 'Saira Condensed', var(--font-body);
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* ── 기타 ── */
+  --line-hair: 1px;
+  --radius: 6px;
+  --shadow-card: 0 2px 10px rgba(35, 41, 46, 0.18);
+}
