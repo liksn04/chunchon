@@ -1,8 +1,27 @@
 import type { GeoProjection } from 'd3-geo';
 import { project, lineToPath, lineToSmoothPath } from '../../lib/projection';
+import { closedSmoothPathFromPoints, type Pt } from '../../lib/morph';
 import { terrainPoints, terrainLines, boundary38 } from '../../data/terrain';
+import { reliefMassifs } from '../../data/relief';
 import { useBattleStore } from '../../store/useBattleStore';
 import type { TerrainPoint } from '../../types';
+
+/** 산괴 폴리곤을 중심 방향으로 수축시켜 등고선 링 3단 생성 */
+function contourRings(projection: GeoProjection, coords: [number, number][]): string[] {
+  const pts: Pt[] = coords.map((c) => project(projection, c));
+  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
+  const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+  return [1, 0.64, 0.34].map((s) =>
+    closedSmoothPathFromPoints(
+      pts.map(([x, y], i) => {
+        // 링마다 점별 수축률에 약간의 요철을 줘 손그림 느낌
+        const wobble = 1 + 0.08 * Math.sin(i * 2.4 + s * 7);
+        const k = s * wobble;
+        return [cx + (x - cx) * k, cy + (y - cy) * k] as Pt;
+      }),
+    ),
+  );
+}
 
 function PointSymbol({ p }: { p: TerrainPoint }) {
   switch (p.kind) {
@@ -60,8 +79,16 @@ function alongLine(projection: GeoProjection, coords: [number, number][], t: num
   return project(projection, coords[idx]);
 }
 
-export default function TerrainLayer({ projection }: { projection: GeoProjection }) {
+export default function TerrainLayer({
+  projection,
+  zoomK = 1,
+}: {
+  projection: GeoProjection;
+  zoomK?: number;
+}) {
   const showLabels = useBattleStore((s) => s.layers.terrain);
+  // 소축척에선 세부 지점(× 표시·고지) 라벨을 숨겨 밀집 구역 겹침을 줄인다
+  const showDetailLabels = zoomK >= 1.6;
 
   const rivers = terrainLines.filter((l) => l.kind === 'river');
   const roads = terrainLines.filter((l) => l.kind === 'road');
@@ -69,6 +96,27 @@ export default function TerrainLayer({ projection }: { projection: GeoProjection
 
   return (
     <g>
+      {/* 음영 기복 — 도식 산괴 등고선 */}
+      {reliefMassifs.map((m) => {
+        const rings = contourRings(projection, m.coordinates);
+        const it = m.intensity ?? 1;
+        return (
+          <g key={m.id} aria-hidden="true">
+            <path d={rings[0]} fill="var(--ridge-shadow)" opacity={0.35 * it} stroke="none" />
+            {rings.map((d, i) => (
+              <path
+                key={i}
+                d={d}
+                fill="none"
+                stroke="var(--contour-bistre)"
+                strokeWidth={0.9}
+                opacity={(0.42 - i * 0.06) * it}
+              />
+            ))}
+          </g>
+        );
+      })}
+
       {/* 강 */}
       {rivers.map((r) => (
         <path
@@ -137,19 +185,23 @@ export default function TerrainLayer({ projection }: { projection: GeoProjection
           {terrainPoints.map((p) => {
             const [x, y] = project(projection, p.coord);
             const big = p.kind === 'city' || p.kind === 'assembly';
+            const detail = p.kind === 'spot' || p.kind === 'hill';
             return (
               <g key={p.id} transform={`translate(${x.toFixed(1)},${y.toFixed(1)})`}>
                 <PointSymbol p={p} />
-                <text
-                  className="map-label"
-                  y={big ? -8 : -7}
-                  textAnchor="middle"
-                  fontSize={big ? 12.5 : 10}
-                  fill={p.kind === 'assembly' ? 'var(--nk)' : undefined}
-                  opacity={p.kind === 'spot' || p.kind === 'hill' ? 0.85 : 1}
-                >
-                  {pointLabel(p)}
-                </text>
+                <title>{pointLabel(p)}</title>
+                {(!detail || showDetailLabels) && (
+                  <text
+                    className="map-label"
+                    y={big ? -8 : -7}
+                    textAnchor="middle"
+                    fontSize={big ? 12.5 : 10}
+                    fill={p.kind === 'assembly' ? 'var(--nk)' : undefined}
+                    opacity={detail ? 0.85 : 1}
+                  >
+                    {pointLabel(p)}
+                  </text>
+                )}
               </g>
             );
           })}

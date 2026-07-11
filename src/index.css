@@ -11,17 +11,24 @@ body,
   margin: 0;
 }
 
+/* iOS Safari 주소창 수축/확장에 흔들리지 않는 동적 뷰포트 높이 */
+#root {
+  height: 100dvh;
+}
+
 body {
   font-family: var(--font-body);
   color: var(--ink);
   background: var(--map-buff-deep);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button {
   font-family: inherit;
   cursor: pointer;
+  touch-action: manipulation; /* iOS 더블탭 확대 방지 */
 }
 
 :focus-visible {
@@ -41,9 +48,33 @@ button {
   align-items: baseline;
   gap: 12px;
   padding: 10px 16px 8px;
+  /* 노치·다이나믹 아일랜드 회피 (viewport-fit=cover) */
+  padding-top: calc(10px + env(safe-area-inset-top));
+  padding-left: calc(16px + env(safe-area-inset-left));
+  padding-right: calc(16px + env(safe-area-inset-right));
   border-bottom: 2px solid var(--ink);
   background: var(--map-buff);
   flex-wrap: wrap;
+}
+
+.theme-toggle {
+  margin-left: auto;
+  align-self: center;
+  padding: 4px 10px;
+  border: 1.5px solid var(--ink-soft);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.theme-toggle:hover {
+  border-color: var(--ink);
+  background: rgba(127, 127, 127, 0.1);
 }
 
 .app-title {
@@ -95,6 +126,8 @@ button {
   display: block;
   touch-action: none;
   cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .map-canvas-wrap svg:active {
@@ -117,6 +150,56 @@ button {
   .side-panel {
     border-left: none;
     border-top: 2px solid var(--ink);
+    /* iOS 홈 인디케이터·모멘텀 스크롤 */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .side-panel .panel-inner {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    padding-left: calc(16px + env(safe-area-inset-left));
+    padding-right: calc(16px + env(safe-area-inset-right));
+  }
+}
+
+/* 소형 화면: 헤더를 한 줄로 압축 */
+@media (max-width: 520px) {
+  .app-subtitle {
+    display: none;
+  }
+
+  .app-header {
+    padding-bottom: 6px;
+    align-items: center;
+  }
+
+  .app-title {
+    font-size: 16px;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* 터치 기기: 탭 타깃 44px 확보 */
+@media (pointer: coarse) {
+  .day-chip {
+    padding: 10px 15px 9px;
+    font-size: 15px;
+    min-height: 42px;
+  }
+
+  .legend-toggle,
+  .theme-toggle {
+    padding: 8px 13px;
+    min-height: 40px;
+  }
+
+  .close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .legend-layers label {
+    padding: 6px 0;
   }
 }
 
@@ -156,6 +239,17 @@ button {
   border-color: var(--amber-deep);
   color: var(--ink);
   box-shadow: inset 0 0 0 1px var(--amber-deep);
+}
+
+.day-chip--play {
+  border-style: dashed;
+  border-color: var(--amber-deep);
+  color: var(--amber-deep);
+  font-weight: 700;
+}
+
+.day-chip--play[aria-pressed='true'] {
+  border-style: solid;
 }
 
 /* ───────── 지도 SVG 공통 ───────── */

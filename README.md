@@ -17,8 +17,17 @@ npm run preview  # 빌드 결과 로컬 확인
 
 - React 18+ · Vite · TypeScript
 - **D3-geo + SVG** — 투영(`geoMercator.fitExtent`)·팬/줌(`d3-zoom`), 상황도 아트 완전 제어
-- Zustand — `selectedDay` / `selectedEventId` / 레이어 토글
+- Zustand — `selectedDay` / `selectedEventId` / 레이어 토글 / 재생 / 테마
 - 전선 모핑 — 폴리라인 리샘플·보간 자체 구현 (`src/lib/morph.ts`)
+
+## 기능
+
+- 날짜 칩 필터 + **▶ 브리핑** 자동 재생(4초 간격, 수동 조작 시 정지)
+- 사건 마커 → 상세 패널(카메라 이동), 개요/피해/의의 패널
+- **APP-6 간이 부대기호** — 날짜 선택 시 일자별 부대 위치 (`src/data/unitPositions.ts`)
+- 도식 등고선/음영 기복 (`src/data/relief.ts`)
+- **다크 "지휘소 콘솔" 테마** — 헤더 토글, localStorage 유지, 시스템 선호 기본값
+- iOS Safari 대응: `100dvh`, safe-area, `viewport-fit=cover`, 44px 탭 타깃
 
 ## 구조
 

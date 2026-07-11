@@ -6,7 +6,7 @@ export const events: BattleEvent[] = [
     date: '1950-06-23',
     title: '모진교 지뢰 사건',
     axis: 'chuncheon',
-    coord: [127.685, 37.980], // ⚠ 현 춘천댐 수몰
+    coord: [127.665, 37.997], // ⚠ 현 춘천댐 수몰 (38선 이남 300m)
     unitIds: [],
     outcome: 'none',
     summary: '개전 전조 — 지뢰 매설을 알고도 노인을 통과시킨 인민군',
@@ -19,7 +19,7 @@ export const events: BattleEvent[] = [
     date: '1950-06-25',
     title: '옥산포 대전차전',
     axis: 'chuncheon',
-    coord: [127.742, 37.930], // ⚠ 신북 부근
+    coord: [127.715, 37.912], // ⚠ 사농동 북한강 강변 (실측 보정)
     unitIds: ['rok-7reg', 'rok-16art', 'nk-2div'],
     outcome: 'rok',
     summary: '심일 소위의 대전차포가 자주포 2~3대 격파, 북한군 격퇴',
@@ -33,7 +33,7 @@ export const events: BattleEvent[] = [
     time: '04:00',
     title: '홍천 정면 돌파',
     axis: 'inje-hongcheon',
-    coord: [127.90, 37.78], // ⚠ 홍천 북방 558고지 일대
+    coord: [127.930, 37.782], // ⚠ 홍천 북방 558고지 일대
     unitIds: ['rok-2reg', 'nk-12div'],
     outcome: 'nk',
     summary: '2연대, 준비 부족 속 후퇴 — 558·402고지 방어선 구축',
@@ -73,7 +73,7 @@ export const events: BattleEvent[] = [
     date: '1950-06-27',
     title: '가래목 대포격전',
     axis: 'chuncheon',
-    coord: [127.752, 37.872], // ⚠ 소양1교 인근 (봉의산 마커와 겹침 방지 위해 살짝 남동 오프셋)
+    coord: [127.752, 37.872], // ⚠ 소양1교 동편 여울 (봉의산 마커와 겹침 방지 오프셋)
     unitIds: ['rok-16art', 'nk-2div'],
     outcome: 'rok',
     key: true,
@@ -88,7 +88,7 @@ export const events: BattleEvent[] = [
     date: '1950-06-27',
     title: '말고개 저지',
     axis: 'inje-hongcheon',
-    coord: [128.05, 37.95], // ⚠ 인제~홍천 route
+    coord: [127.965, 37.820], // ⚠ 홍천 두촌면 말고개 (실측 보정)
     unitIds: ['rok-2reg', 'rok-19reg', 'rok-16art', 'nk-12div'],
     outcome: 'rok',
     summary: '19연대·16포병 가세로 말고개에서 북한군 저지',
@@ -102,7 +102,7 @@ export const events: BattleEvent[] = [
     time: '08:00',
     title: '원창고개–금병산 전투',
     axis: 'chuncheon',
-    coord: [127.790, 37.835], // ⚠ 원창고개
+    coord: [127.780, 37.818], // ⚠ 원창고개 (동산면)
     unitIds: ['rok-7reg', 'nk-2div', 'nk-12div'],
     outcome: 'mixed',
     summary: '포위 시도를 지연시키며 금병산·원창고개 방어 후 철수',
@@ -116,7 +116,7 @@ export const events: BattleEvent[] = [
     time: '10:00',
     title: '큰말고개 육탄 11용사',
     axis: 'inje-hongcheon',
-    coord: [128.02, 37.92], // ⚠ 인제 남방
+    coord: [127.982, 37.836], // ⚠ 큰말고개 (자은리 남서편)
     unitIds: ['rok-2reg', 'rok-19reg', 'nk-12div'],
     outcome: 'rok',
     key: true,

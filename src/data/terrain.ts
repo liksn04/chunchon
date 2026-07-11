@@ -16,24 +16,30 @@ export const terrainPoints: TerrainPoint[] = [
 
   // ── 산 ──
   { id: 'bongui',    kind: 'peak', name: '봉의산', coord: [127.731, 37.887], meta: { elevation: 301, note: '6/27 피탈' } },
-  { id: 'geumbyeong',kind: 'peak', name: '금병산', coord: [127.700, 37.820], meta: { elevation: 652, note: '6/28 방어' } },
+  // 금병산: 춘천 신동면, 김유정역 북동편 (실측 보정)
+  { id: 'geumbyeong',kind: 'peak', name: '금병산', coord: [127.740, 37.806], meta: { elevation: 652, note: '6/28 방어' } },
 
   // ── 다리 ──
-  { id: 'mojin',     kind: 'bridge', name: '모진교', coord: [127.685, 37.980], meta: { submerged1950: true, note: '현 춘천댐 수몰', uncertain: true } },
+  // 모진교: 현 춘천댐 부근 수몰 지점, 38선 이남 300m
+  { id: 'mojin',     kind: 'bridge', name: '모진교', coord: [127.665, 37.997], meta: { submerged1950: true, note: '현 춘천댐 수몰', uncertain: true } },
   { id: 'soyang1',   kind: 'bridge', name: '소양1교', coord: [127.735, 37.878] },
 
   // ── 주요 지점 ──
-  { id: 'oksanpo',   kind: 'spot', name: '옥산포',  coord: [127.742, 37.930], meta: { uncertain: true } },
-  { id: 'garaemok',  kind: 'spot', name: '가래목',  coord: [127.733, 37.880], meta: { uncertain: true } },
-  { id: 'inram',     kind: 'spot', name: '사북면 인람리', coord: [127.700, 37.985], meta: { uncertain: true, note: '최초 전초 피격' } },
-  { id: 'wonchang',  kind: 'spot', name: '원창고개', coord: [127.790, 37.835], meta: { uncertain: true } },
-  { id: 'malgogae',  kind: 'spot', name: '말고개',   coord: [128.050, 37.950], meta: { uncertain: true } },
-  { id: 'keunmal',   kind: 'spot', name: '큰말고개', coord: [128.020, 37.920], meta: { uncertain: true } },
-  { id: 'jaeun',     kind: 'spot', name: '자은리',   coord: [128.000, 37.900], meta: { uncertain: true, note: '2연대 지휘소' } },
+  // 옥산포: 사농동 북한강 강변 (우두동 서쪽) — 실측 보정
+  { id: 'oksanpo',   kind: 'spot', name: '옥산포',  coord: [127.715, 37.912], meta: { uncertain: true } },
+  { id: 'garaemok',  kind: 'spot', name: '가래목',  coord: [127.752, 37.876], meta: { uncertain: true } },
+  { id: 'inram',     kind: 'spot', name: '사북면 인람리', coord: [127.678, 38.000], meta: { uncertain: true, note: '최초 전초 피격' } },
+  // 원창고개: 춘천 동산면, 5번 국도 춘천~홍천 사이
+  { id: 'wonchang',  kind: 'spot', name: '원창고개', coord: [127.780, 37.818], meta: { uncertain: true } },
+  // 말고개: 홍천 두촌면 자은리 남서쪽 44번 국도 고개 (육탄 11용사 전적지)
+  { id: 'malgogae',  kind: 'spot', name: '말고개',   coord: [127.965, 37.820], meta: { uncertain: true } },
+  { id: 'keunmal',   kind: 'spot', name: '큰말고개', coord: [127.982, 37.836], meta: { uncertain: true } },
+  // 자은리: 홍천 두촌면 소재지, 44번 국도변
+  { id: 'jaeun',     kind: 'spot', name: '자은리',   coord: [127.995, 37.848], meta: { uncertain: true, note: '2연대 지휘소' } },
 
   // ── 고지 ──
-  { id: 'hill558',   kind: 'hill', name: '558고지', coord: [127.920, 37.780], meta: { uncertain: true } },
-  { id: 'hill402',   kind: 'hill', name: '402고지', coord: [127.900, 37.760], meta: { uncertain: true } },
+  { id: 'hill558',   kind: 'hill', name: '558고지', coord: [127.938, 37.788], meta: { uncertain: true } },
+  { id: 'hill402',   kind: 'hill', name: '402고지', coord: [127.912, 37.762], meta: { uncertain: true } },
 ];
 
 /** 38선 (북위 38도) — 뷰를 가로지르는 위도선 */
@@ -107,11 +113,11 @@ export const terrainLines: TerrainLine[] = [
     approx: true,
     coordinates: [
       [127.708, 38.106], // 화천
-      [127.720, 38.010],
-      [127.742, 37.930], // 옥산포 부근
+      [127.700, 38.010],
+      [127.715, 37.912], // 옥산포(사농동) 부근
       [127.734, 37.885], // 춘천
-      [127.790, 37.835], // 원창고개
-      [127.840, 37.770],
+      [127.780, 37.818], // 원창고개
+      [127.840, 37.760],
       [127.889, 37.697], // 홍천
       [127.940, 37.590],
       [127.985, 37.492], // 횡성
@@ -129,11 +135,12 @@ export const terrainLines: TerrainLine[] = [
     approx: true,
     coordinates: [
       [128.170, 38.067], // 인제
-      [128.100, 38.000],
-      [128.050, 37.950], // 말고개
-      [128.020, 37.920], // 큰말고개
-      [127.970, 37.840],
-      [127.930, 37.770],
+      [128.100, 37.990],
+      [128.060, 37.945], // 신남 부근
+      [128.020, 37.895], // 어론리 부근
+      [127.995, 37.848], // 자은리
+      [127.965, 37.820], // 말고개
+      [127.925, 37.760],
       [127.889, 37.697], // 홍천
     ],
   },

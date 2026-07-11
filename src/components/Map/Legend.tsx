@@ -12,6 +12,7 @@ function Swatch({ children }: { children: React.ReactNode }) {
 const LAYER_LABELS = {
   front: '전선',
   arrows: '이동 화살표',
+  units: '부대기호',
   markers: '사건 마커',
   terrain: '지형 라벨',
 } as const;
@@ -96,6 +97,37 @@ export default function Legend() {
               <circle cx={15} cy={7} r={6.5} fill="none" stroke="var(--amber)" strokeWidth={2} strokeDasharray="3 2" />
             </Swatch>
             ★ 핵심 사건
+          </div>
+
+          <h3>부대기호 (날짜 선택 시)</h3>
+          <div className="legend-row">
+            <Swatch>
+              <rect x={6} y={2.5} width={18} height={11} fill="none" stroke="var(--rok)" strokeWidth={1.3} />
+              <path d="M8,4 L22,12 M8,12 L22,4" stroke="var(--rok)" strokeWidth={1} fill="none" />
+            </Swatch>
+            보병 (X)
+          </div>
+          <div className="legend-row">
+            <Swatch>
+              <rect x={6} y={2.5} width={18} height={11} fill="none" stroke="var(--rok)" strokeWidth={1.3} />
+              <circle cx={15} cy={8} r={2.2} fill="var(--rok)" />
+            </Swatch>
+            포병 (●)
+          </div>
+          <div className="legend-row">
+            <Swatch>
+              <rect x={6} y={2.5} width={18} height={11} fill="none" stroke="var(--nk)" strokeWidth={1.3} />
+              <ellipse cx={15} cy={8} rx={5} ry={3} fill="none" stroke="var(--nk)" strokeWidth={1.1} />
+            </Swatch>
+            기갑·자주포
+          </div>
+          <div className="legend-row" style={{ fontFamily: 'var(--font-mono)', fontSize: 10 }}>
+            <Swatch>
+              <text x={15} y={11} textAnchor="middle" fontSize={8} fontFamily="var(--font-mono)" fill="var(--ink)">
+                II·III·XX
+              </text>
+            </Swatch>
+            대대·연대·사단
           </div>
 
           <h3>지형</h3>

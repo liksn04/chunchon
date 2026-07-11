@@ -9,6 +9,7 @@ import { useBattleStore } from '../../store/useBattleStore';
 import TerrainLayer from './TerrainLayer';
 import FrontLineLayer from './FrontLineLayer';
 import ArrowLayer, { ArrowheadDefs } from './ArrowLayer';
+import UnitLayer from './UnitLayer';
 import EventMarkers from './EventMarkers';
 
 const MIN_ZOOM = 1;
@@ -109,9 +110,10 @@ export default function MapCanvas() {
               height={size.h * 4.5}
               fill="url(#utm-grid)"
             />
-            <TerrainLayer projection={projection} />
+            <TerrainLayer projection={projection} zoomK={transform.k} />
             <FrontLineLayer projection={projection} />
             <ArrowLayer projection={projection} />
+            <UnitLayer projection={projection} />
             <EventMarkers projection={projection} />
           </g>
         </svg>

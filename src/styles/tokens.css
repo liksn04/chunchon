@@ -29,3 +29,30 @@
   --radius: 6px;
   --shadow-card: 0 2px 10px rgba(35, 41, 46, 0.18);
 }
+
+/* ── 다크 변형: "지휘소 콘솔" — 딥네이비 + 발광 등고선, 청·적 2색 유지 ── */
+:root[data-theme='dark'] {
+  --map-buff: #131a24;          /* 지도 표면 (라벨 halo·마커 fill이 자동 추종) */
+  --map-buff-deep: #0d131b;
+  --panel-paper: #171f2b;
+  --contour-bistre: #8a7d5e;
+  --ridge-shadow: rgba(170, 195, 225, 0.09);
+  --water-teal: #4c7d82;
+  --water-deep: #8fc0c4;
+  --grid-slate: rgba(148, 170, 196, 0.11);
+  --ink: #d8dde3;
+  --ink-soft: #a8b0b9;
+  --ink-faint: #737d87;
+  --rok: #6494e2;               /* 검증: CVD ΔE 62 · 대비 3:1↑ (surface #131a24) */
+  --rok-soft: rgba(100, 148, 226, 0.16);
+  --nk: #e0645c;
+  --nk-soft: rgba(224, 100, 92, 0.16);
+  --amber: #e0a63c;
+  --amber-deep: #f0bc5e;        /* 어두운 배경에선 강조 테두리를 더 밝게 */
+  --shadow-card: 0 2px 14px rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme='dark'] .badge--rok,
+:root[data-theme='dark'] .badge--nk {
+  color: #0e141c;               /* 밝아진 진영색 위 텍스트 대비 확보 */
+}
