@@ -1,4 +1,5 @@
 import { days, dayByDate } from '../../data/days';
+import { planNote } from '../../data/plans';
 import { useBattleStore } from '../../store/useBattleStore';
 import StatBar from './StatBar';
 
@@ -60,6 +61,9 @@ export default function OverviewPanel() {
         <p className="panel-body" style={{ marginTop: 8 }}>
           문책으로 북한 2군단장 김광협, 2사단장 리청송, 12사단장 전우가
           해임됐다. 지도의 날짜 칩과 마커를 눌러 하루하루의 전개를 따라가 보라.
+        </p>
+        <p className="panel-body panel-body--note" style={{ marginTop: 8 }}>
+          {planNote}
         </p>
       </div>
 

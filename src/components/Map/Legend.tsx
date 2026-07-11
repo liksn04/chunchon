@@ -14,6 +14,7 @@ const LAYER_LABELS = {
   arrows: '이동 화살표',
   units: '부대기호',
   markers: '사건 마커',
+  plan: '계획선(무산)',
   terrain: '지형 라벨',
 } as const;
 
@@ -67,6 +68,12 @@ export default function Legend() {
               <path d="M2,7 H22 M22,3.5 L27,7 L22,10.5" fill="none" stroke="var(--rok)" strokeWidth={1.8} strokeDasharray="4 3" />
             </Swatch>
             철수 (점선)
+          </div>
+          <div className="legend-row">
+            <Swatch>
+              <path d="M2,7 H22 M22,3.5 L27,7 L22,10.5" fill="none" stroke="var(--nk)" strokeWidth={1.8} strokeDasharray="5 4" opacity={0.45} />
+            </Swatch>
+            적 계획선 (무산)
           </div>
 
           <h3>사건 마커</h3>

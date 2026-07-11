@@ -4,26 +4,41 @@ import { days } from '../data/days';
 export type DayKey = string | 'all';
 export type Theme = 'light' | 'dark';
 
+/** 브리핑 대본의 한 스텝: 날짜 인트로(eventId=null) 또는 사건 클로즈업 */
+export interface BriefStep {
+  date: string;
+  eventId: string | null;
+}
+
+/** 브리핑 대본: 각 날짜마다 [인트로 → 그날의 사건들] 순서 */
+export const briefScript: BriefStep[] = days.flatMap((d) => [
+  { date: d.date, eventId: null },
+  ...d.activeEventIds.map((id) => ({ date: d.date, eventId: id })),
+]);
+
 interface LayerVisibility {
   arrows: boolean;
   front: boolean;
   units: boolean;
   markers: boolean;
   terrain: boolean;
+  plan: boolean;
 }
 
 interface BattleState {
   selectedDay: DayKey;
   selectedEventId: string | null;
   layers: LayerVisibility;
-  playing: boolean;
+  /** 브리핑 진행 중이면 대본 인덱스, 아니면 null */
+  briefIndex: number | null;
   theme: Theme;
   setDay: (d: DayKey) => void;
   selectEvent: (id: string | null) => void;
   toggleLayer: (k: keyof LayerVisibility) => void;
   play: () => void;
   stop: () => void;
-  advanceDay: () => void;
+  setBriefStep: (i: number) => void;
+  advanceBrief: () => void;
   toggleTheme: () => void;
 }
 
@@ -38,37 +53,38 @@ function initialTheme(): Theme {
     : 'light';
 }
 
-const LAST_DAY = days[days.length - 1].date;
-
-export const useBattleStore = create<BattleState>((set) => ({
+export const useBattleStore = create<BattleState>((set, get) => ({
   selectedDay: 'all',
   selectedEventId: null,
-  layers: { arrows: true, front: true, units: true, markers: true, terrain: true },
-  playing: false,
+  layers: {
+    arrows: true,
+    front: true,
+    units: true,
+    markers: true,
+    terrain: true,
+    plan: true,
+  },
+  briefIndex: null,
   theme: initialTheme(),
-  // 수동 날짜 선택은 재생을 멈춘다
-  setDay: (d) => set({ selectedDay: d, selectedEventId: null, playing: false }),
-  // 사건 상세를 열면 재생을 멈춘다
-  selectEvent: (id) =>
-    set((s) => ({ selectedEventId: id, playing: id ? false : s.playing })),
+  // 수동 날짜 선택은 브리핑을 멈춘다
+  setDay: (d) => set({ selectedDay: d, selectedEventId: null, briefIndex: null }),
+  // 사용자가 직접 사건을 열거나 닫으면 브리핑을 멈춘다
+  selectEvent: (id) => set({ selectedEventId: id, briefIndex: null }),
   toggleLayer: (k) =>
     set((s) => ({ layers: { ...s.layers, [k]: !s.layers[k] } })),
-  play: () =>
-    set((s) => ({
-      playing: true,
-      selectedEventId: null,
-      selectedDay:
-        s.selectedDay === 'all' || s.selectedDay === LAST_DAY
-          ? days[0].date
-          : s.selectedDay,
-    })),
-  stop: () => set({ playing: false }),
-  advanceDay: () =>
-    set((s) => {
-      const idx = days.findIndex((d) => d.date === s.selectedDay);
-      if (idx < 0 || idx >= days.length - 1) return { playing: false };
-      return { selectedDay: days[idx + 1].date };
-    }),
+  play: () => get().setBriefStep(0),
+  stop: () => set({ briefIndex: null }),
+  setBriefStep: (i) => {
+    const idx = Math.max(0, Math.min(briefScript.length - 1, i));
+    const st = briefScript[idx];
+    set({ briefIndex: idx, selectedDay: st.date, selectedEventId: st.eventId });
+  },
+  advanceBrief: () => {
+    const i = get().briefIndex;
+    if (i === null) return;
+    if (i >= briefScript.length - 1) set({ briefIndex: null });
+    else get().setBriefStep(i + 1);
+  },
   toggleTheme: () =>
     set((s) => {
       const theme: Theme = s.theme === 'light' ? 'dark' : 'light';
