@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project } from '../../lib/projection';
 import { unitPositionsByDate } from '../../data/unitPositions';
@@ -45,7 +46,7 @@ function BranchGlyph({ symbol, color }: { symbol: MilitaryUnit['symbol']; color:
   }
 }
 
-export default function UnitLayer({ projection }: { projection: GeoProjection }) {
+function UnitLayer({ projection }: { projection: GeoProjection }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const visible = useBattleStore((s) => s.layers.units);
   if (!visible || selectedDay === 'all') return null;
@@ -111,3 +112,5 @@ export default function UnitLayer({ projection }: { projection: GeoProjection })
     </g>
   );
 }
+
+export default memo(UnitLayer);

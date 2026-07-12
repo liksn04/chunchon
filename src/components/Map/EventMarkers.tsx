@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project } from '../../lib/projection';
 import { events } from '../../data/events';
@@ -26,7 +27,7 @@ function OutcomeGlyph({ outcome }: { outcome: Outcome }) {
   }
 }
 
-export default function EventMarkers({ projection }: { projection: GeoProjection }) {
+function EventMarkers({ projection }: { projection: GeoProjection }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const selectedEventId = useBattleStore((s) => s.selectedEventId);
   const selectEvent = useBattleStore((s) => s.selectEvent);
@@ -104,3 +105,5 @@ export default function EventMarkers({ projection }: { projection: GeoProjection
     </g>
   );
 }
+
+export default memo(EventMarkers);

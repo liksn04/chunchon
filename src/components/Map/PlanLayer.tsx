@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project, lineToSmoothPath } from '../../lib/projection';
 import { planArrows, PLAN_FAILED_FROM } from '../../data/plans';
@@ -7,7 +8,7 @@ import { useBattleStore } from '../../store/useBattleStore';
  * 유령 포위망 — 북한 2군단의 실현되지 못한 계획선.
  * 항상 반투명 점선으로 깔리고, 6/28 이후엔 ✕ 표시와 "포위계획 무산" 스탬프가 찍힌다.
  */
-export default function PlanLayer({ projection }: { projection: GeoProjection }) {
+function PlanLayer({ projection }: { projection: GeoProjection }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const visible = useBattleStore((s) => s.layers.plan);
   if (!visible) return null;
@@ -86,3 +87,5 @@ export default function PlanLayer({ projection }: { projection: GeoProjection })
     </g>
   );
 }
+
+export default memo(PlanLayer);

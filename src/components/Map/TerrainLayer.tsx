@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project, lineToPath, lineToSmoothPath } from '../../lib/projection';
 import { closedSmoothPathFromPoints, type Pt } from '../../lib/morph';
@@ -79,16 +80,16 @@ function alongLine(projection: GeoProjection, coords: [number, number][], t: num
   return project(projection, coords[idx]);
 }
 
-export default function TerrainLayer({
+function TerrainLayer({
   projection,
-  zoomK = 1,
+  detail = false,
 }: {
   projection: GeoProjection;
-  zoomK?: number;
+  detail?: boolean;
 }) {
   const showLabels = useBattleStore((s) => s.layers.terrain);
   // 소축척에선 세부 지점(× 표시·고지) 라벨을 숨겨 밀집 구역 겹침을 줄인다
-  const showDetailLabels = zoomK >= 1.6;
+  const showDetailLabels = detail;
 
   const rivers = terrainLines.filter((l) => l.kind === 'river');
   const roads = terrainLines.filter((l) => l.kind === 'road');
@@ -210,3 +211,5 @@ export default function TerrainLayer({
     </g>
   );
 }
+
+export default memo(TerrainLayer);

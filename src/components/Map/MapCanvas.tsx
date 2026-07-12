@@ -16,8 +16,6 @@ import EventMarkers from './EventMarkers';
 import InsetMap from './InsetMap';
 import BriefingCaption from '../Briefing/BriefingCaption';
 
-const WOBBLE = !prefersReducedMotion();
-
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 6;
 const INSET = 14; // 도엽 테두리(neatline) 여백
@@ -241,11 +239,6 @@ export default function MapCanvas() {
             <pattern id="utm-grid" width={64} height={64} patternUnits="userSpaceOnUse">
               <path d="M64 0H0V64" fill="none" stroke="var(--grid-slate)" strokeWidth={1} />
             </pattern>
-            {/* 그리스펜슬 손떨림 — 전선·화살표에 미세 왜곡 */}
-            <filter id="grease" x="-5%" y="-5%" width="110%" height="110%">
-              <feTurbulence type="fractalNoise" baseFrequency="0.014 0.02" numOctaves={1} seed={7} result="n" />
-              <feDisplacementMap in="SourceGraphic" in2="n" scale={2.2} xChannelSelector="R" yChannelSelector="G" />
-            </filter>
             <ArrowheadDefs />
           </defs>
 
@@ -260,12 +253,10 @@ export default function MapCanvas() {
               height={size.h * 4.5}
               fill="url(#utm-grid)"
             />
-            <TerrainLayer projection={projection} zoomK={transform.k} />
-            <g filter={WOBBLE ? 'url(#grease)' : undefined}>
-              <PlanLayer projection={projection} />
-              <FrontLineLayer projection={projection} />
-              <ArrowLayer projection={projection} />
-            </g>
+            <TerrainLayer projection={projection} detail={transform.k >= 1.6} />
+            <PlanLayer projection={projection} />
+            <FrontLineLayer projection={projection} />
+            <ArrowLayer projection={projection} />
             <UnitLayer projection={projection} />
             <EventMarkers projection={projection} />
           </g>

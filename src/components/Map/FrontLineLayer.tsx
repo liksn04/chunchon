@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project } from '../../lib/projection';
 import {
@@ -16,7 +16,7 @@ import { useBattleStore } from '../../store/useBattleStore';
 const SAMPLES = 72;
 const MORPH_MS = 700;
 
-export default function FrontLineLayer({ projection }: { projection: GeoProjection }) {
+function FrontLineLayer({ projection }: { projection: GeoProjection }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const scrub = useBattleStore((s) => s.scrub);
   const visible = useBattleStore((s) => s.layers.front);
@@ -162,3 +162,5 @@ export default function FrontLineLayer({ projection }: { projection: GeoProjecti
     </g>
   );
 }
+
+export default memo(FrontLineLayer);

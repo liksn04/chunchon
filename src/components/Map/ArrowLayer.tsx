@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project, lineToSmoothPath } from '../../lib/projection';
 import { movements } from '../../data/movements';
@@ -59,7 +60,7 @@ function markerId(a: MovementArrow) {
   return a.style === 'attack' ? `ah-fill-${a.faction}` : `ah-open-${a.faction}`;
 }
 
-export default function ArrowLayer({ projection }: { projection: GeoProjection }) {
+function ArrowLayer({ projection }: { projection: GeoProjection }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const visible = useBattleStore((s) => s.layers.arrows);
   if (!visible) return null;
@@ -107,3 +108,5 @@ export default function ArrowLayer({ projection }: { projection: GeoProjection }
     </g>
   );
 }
+
+export default memo(ArrowLayer);

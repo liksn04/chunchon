@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { personById } from '../../data/people';
 
-/** 인물 약력 카드 — 배경 클릭·Esc로 닫힘 (모바일 하단시트 / 데스크탑 중앙 카드) */
+/** 인물 약력 카드 — 배경 클릭·Esc로 닫힘. body로 포털해 스크롤 컨테이너 밖에 띄운다. */
 export default function PersonCard({
   personId,
   onClose,
@@ -19,12 +20,18 @@ export default function PersonCard({
       }
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    // 모달 열려 있는 동안 배경 스크롤 잠금
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
   }, [onClose]);
 
   if (!p) return null;
 
-  return (
+  return createPortal(
     <div className="person-backdrop" onClick={onClose}>
       <div
         className={`person-card person-card--${p.faction}`}
@@ -47,6 +54,7 @@ export default function PersonCard({
         </div>
         <p className="person-bio">{p.bio}</p>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
