@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useBattleStore, briefScript } from '../../store/useBattleStore';
+import { useT } from '../../i18n';
 import { eventById } from '../../data/events';
 import { dayByDate } from '../../data/days';
 import { prefersReducedMotion } from '../../lib/morph';
@@ -12,6 +13,7 @@ function fmtDate(date: string, time?: string) {
 
 /** 브리핑 중 지도 하단에 뜨는 군용 전문(電文) 자막 — 타자기 효과 */
 export default function BriefingCaption() {
+  const t = useT();
   const briefIndex = useBattleStore((s) => s.briefIndex);
   const stop = useBattleStore((s) => s.stop);
   const setBriefStep = useBattleStore((s) => s.setBriefStep);
@@ -22,8 +24,8 @@ export default function BriefingCaption() {
 
   const meta = step
     ? ev
-      ? `전문 № ${String(briefIndex! + 1).padStart(2, '0')} · ${fmtDate(ev.date, ev.time)} · 발신 6사단 → 육본`
-      : `상황보고 · ${fmtDate(step.date)} · 제6사단사령부`
+      ? `${t('brief.wire')} № ${String(briefIndex! + 1).padStart(2, '0')} · ${fmtDate(ev.date, ev.time)} · ${t('brief.from')}`
+      : `${t('brief.report')} · ${fmtDate(step.date)} · ${t('brief.hq')}`
     : '';
   const body = step ? (ev ? `${ev.title} — ${ev.summary}` : day?.headline ?? '') : '';
 

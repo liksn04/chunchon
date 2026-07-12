@@ -13,7 +13,10 @@ import ArrowLayer, { ArrowheadDefs } from './ArrowLayer';
 import PlanLayer from './PlanLayer';
 import UnitLayer from './UnitLayer';
 import EventMarkers from './EventMarkers';
+import InsetMap from './InsetMap';
 import BriefingCaption from '../Briefing/BriefingCaption';
+
+const WOBBLE = !prefersReducedMotion();
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 6;
@@ -238,6 +241,11 @@ export default function MapCanvas() {
             <pattern id="utm-grid" width={64} height={64} patternUnits="userSpaceOnUse">
               <path d="M64 0H0V64" fill="none" stroke="var(--grid-slate)" strokeWidth={1} />
             </pattern>
+            {/* 그리스펜슬 손떨림 — 전선·화살표에 미세 왜곡 */}
+            <filter id="grease" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.014 0.02" numOctaves={1} seed={7} result="n" />
+              <feDisplacementMap in="SourceGraphic" in2="n" scale={2.2} xChannelSelector="R" yChannelSelector="G" />
+            </filter>
             <ArrowheadDefs />
           </defs>
 
@@ -253,18 +261,23 @@ export default function MapCanvas() {
               fill="url(#utm-grid)"
             />
             <TerrainLayer projection={projection} zoomK={transform.k} />
-            <PlanLayer projection={projection} />
-            <FrontLineLayer projection={projection} />
-            <ArrowLayer projection={projection} />
+            <g filter={WOBBLE ? 'url(#grease)' : undefined}>
+              <PlanLayer projection={projection} />
+              <FrontLineLayer projection={projection} />
+              <ArrowLayer projection={projection} />
+            </g>
             <UnitLayer projection={projection} />
             <EventMarkers projection={projection} />
           </g>
 
           {/* 화면 고정 도엽 요소 */}
           <GraticuleFrame projection={projection} transform={transform} w={size.w} h={size.h} />
-          <Compass x={INSET + 30} y={INSET + 44} />
+          <Compass x={size.w - INSET - 26} y={size.h - INSET - 34} />
         </svg>
       )}
+
+      {/* 인셋 미니맵 — 한반도 맥락 */}
+      {projection && <InsetMap projection={projection} transform={transform} w={size.w} h={size.h} />}
 
       {/* 카투시 — 도엽명·축척 */}
       {scale && (

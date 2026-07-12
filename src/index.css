@@ -57,8 +57,14 @@ button {
   flex-wrap: wrap;
 }
 
-.theme-toggle {
+.header-toggles {
   margin-left: auto;
+  display: flex;
+  gap: 6px;
+  align-self: center;
+}
+
+.theme-toggle {
   align-self: center;
   padding: 4px 10px;
   border: 1.5px solid var(--ink-soft);
@@ -156,6 +162,46 @@ button {
   font-size: 8px;
   fill: var(--ink-soft);
   user-select: none;
+}
+
+/* ───────── 인셋 미니맵 ───────── */
+.inset-map {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 4;
+  padding: 4px;
+  background: var(--map-buff);
+  border: 1.5px solid var(--ink);
+  border-radius: 3px;
+  box-shadow: var(--shadow-card);
+  pointer-events: none;
+}
+
+.inset-map svg {
+  display: block;
+}
+
+.inset-label {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--map-buff);
+  stroke-width: 2px;
+}
+
+.inset-label--rok {
+  fill: var(--rok);
+}
+
+@media (max-width: 700px) {
+  .inset-map {
+    transform: scale(0.8);
+    transform-origin: top left;
+    left: 8px;
+    top: 8px;
+  }
 }
 
 /* ───────── 카투시 ───────── */
@@ -405,13 +451,84 @@ button {
 }
 
 /* ───────── DayRail ───────── */
+.day-rail-wrap {
+  border-top: 1.5px solid var(--ink);
+  background: var(--map-buff);
+}
+
+.day-scrubber {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 2px;
+}
+
+.scrubber-cap {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--ink-faint);
+  flex: 0 0 auto;
+  letter-spacing: 0.04em;
+}
+
+.scrubber {
+  flex: 1;
+  height: 22px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.scrubber::-webkit-slider-runnable-track {
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    var(--rok) 0%,
+    var(--nk) 100%
+  );
+  border-radius: 2px;
+}
+
+.scrubber::-moz-range-track {
+  height: 3px;
+  background: linear-gradient(to right, var(--rok), var(--nk));
+  border-radius: 2px;
+}
+
+.scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -6.5px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 2px solid var(--amber-deep);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.scrubber::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 2px solid var(--amber-deep);
+}
+
+.scrubber--idle::-webkit-slider-thumb {
+  opacity: 0.4;
+}
+
+.scrubber--idle::-moz-range-thumb {
+  opacity: 0.4;
+}
+
 .day-rail {
   display: flex;
   gap: 6px;
-  padding: 8px 12px;
+  padding: 4px 12px 8px;
   overflow-x: auto;
-  border-top: 1.5px solid var(--ink);
-  background: var(--map-buff);
   scrollbar-width: thin;
 }
 
@@ -735,6 +852,271 @@ button {
   background: var(--amber);
   color: var(--ink);
   border-color: var(--amber-deep);
+}
+
+.badge--approx {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px dashed var(--ink-faint);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* ───────── 인물 칩 · 카드 ───────── */
+.person-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 4px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.2px solid;
+  background: var(--map-buff);
+}
+
+.person-chip--ROK {
+  border-color: var(--rok);
+  color: var(--rok);
+}
+
+.person-chip--NK {
+  border-color: var(--nk);
+  color: var(--nk);
+}
+
+.person-chip-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: currentColor;
+  color: var(--map-buff);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.person-chip-more {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+.person-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(20, 24, 28, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fade-in 0.18s ease-out;
+}
+
+.person-card {
+  position: relative;
+  width: min(360px, 100%);
+  padding: 18px 18px 20px;
+  background: var(--panel-paper);
+  border: 1.5px solid var(--ink);
+  border-top: 4px solid var(--rok);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.person-card--NK {
+  border-top-color: var(--nk);
+}
+
+.person-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.person-portrait {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+}
+
+.person-portrait--ROK {
+  background: var(--rok);
+}
+
+.person-portrait--NK {
+  background: var(--nk);
+}
+
+.person-name {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.person-role {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.person-bio {
+  font-size: 13.5px;
+  line-height: 1.72;
+  margin: 0;
+}
+
+/* ───────── 온보딩 코치마크 ───────── */
+.coach-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(20, 24, 28, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  animation: fade-in 0.2s ease-out;
+}
+
+.coach-card {
+  width: min(400px, 100%);
+  padding: 20px 22px 18px;
+  background: var(--panel-paper);
+  border: 1.5px solid var(--ink);
+  border-top: 4px solid var(--amber-deep);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.coach-kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+.coach-title {
+  margin: 4px 0 8px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.coach-body {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.coach-dots {
+  display: flex;
+  gap: 6px;
+  margin: 14px 0;
+}
+
+.coach-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  opacity: 0.4;
+}
+
+.coach-dots span.on {
+  background: var(--amber-deep);
+  opacity: 1;
+}
+
+.coach-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.coach-skip {
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 13px;
+  padding: 8px 4px;
+}
+
+.coach-next {
+  background: var(--amber);
+  border: 1.5px solid var(--amber-deep);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 8px 20px;
+  border-radius: var(--radius);
+}
+
+/* ───────── 전선 남하 그래프 ───────── */
+.advance-chart {
+  margin: 0;
+}
+
+.advance-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.advance-chart figcaption {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.approx-mark {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-faint);
+  border: 1px dashed var(--ink-faint);
+  border-radius: 3px;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+/* ───────── 출처 목록 ───────── */
+.source-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.source-list li {
+  padding: 2px 0;
+}
+
+.source-list a {
+  color: var(--rok);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.source-pub {
+  color: var(--ink-faint);
+  font-size: 11px;
 }
 
 .unit-chips {

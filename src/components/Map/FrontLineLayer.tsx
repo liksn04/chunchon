@@ -10,7 +10,7 @@ import {
   type Pt,
 } from '../../lib/morph';
 import { frontLines, frontLineByDate } from '../../data/frontlines';
-import { dayByDate } from '../../data/days';
+import { days, dayByDate } from '../../data/days';
 import { useBattleStore } from '../../store/useBattleStore';
 
 const SAMPLES = 72;
@@ -18,7 +18,25 @@ const MORPH_MS = 700;
 
 export default function FrontLineLayer({ projection }: { projection: GeoProjection }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
+  const scrub = useBattleStore((s) => s.scrub);
   const visible = useBattleStore((s) => s.layers.front);
+
+  /* 스크러버 드래그 중: 두 날짜의 전선을 소수 인덱스로 직접 보간 (RAF 없이 즉시) */
+  const scrubbed = useMemo(() => {
+    if (scrub === null) return null;
+    const lo = Math.floor(scrub);
+    const hi = Math.min(days.length - 1, Math.ceil(scrub));
+    const f = scrub - lo;
+    const sample = (i: number) => {
+      const fl = frontLineByDate.get(days[i].frontLineDate);
+      return resamplePolyline(
+        (fl?.coordinates ?? []).map((c) => project(projection, c)),
+        SAMPLES,
+      );
+    };
+    const pts = lo === hi ? sample(lo) : lerpPolyline(sample(lo), sample(hi), f);
+    return { pts, date: days[Math.round(scrub)].date };
+  }, [scrub, projection]);
 
   const target = useMemo(() => {
     if (selectedDay === 'all') return null;
@@ -62,6 +80,32 @@ export default function FrontLineLayer({ projection }: { projection: GeoProjecti
   }, [target]);
 
   if (!visible) return null;
+
+  /* 스크러버 중이면 보간된 전선을 그대로 렌더 */
+  if (scrubbed) {
+    const [lx, ly] = scrubbed.pts[scrubbed.pts.length - 1];
+    return (
+      <g aria-hidden="true">
+        <path
+          d={smoothPathFromPoints(scrubbed.pts)}
+          fill="none"
+          stroke="var(--nk)"
+          strokeWidth={2.6}
+          strokeLinecap="round"
+          opacity={0.9}
+        />
+        <text
+          className="map-label map-label--mono"
+          x={lx + 6}
+          y={ly + 4}
+          fontSize={10}
+          fill="var(--nk)"
+        >
+          전선 {Number(scrubbed.date.slice(5, 7))}.{Number(scrubbed.date.slice(8, 10))}
+        </text>
+      </g>
+    );
+  }
 
   /* 전체 모드 — 일자별 전선을 겹쳐 남하 흐름을 한눈에 */
   if (selectedDay === 'all') {

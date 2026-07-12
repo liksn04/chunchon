@@ -1,9 +1,12 @@
 import { days, dayByDate } from '../../data/days';
 import { planNote } from '../../data/plans';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useT } from '../../i18n';
 import StatBar from './StatBar';
+import AdvanceChart from './AdvanceChart';
 
 export default function OverviewPanel() {
+  const t = useT();
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const day = selectedDay === 'all' ? null : dayByDate.get(selectedDay);
   const dayIndex = day ? days.indexOf(day) : -1;
@@ -11,23 +14,23 @@ export default function OverviewPanel() {
   return (
     <div className="panel-inner">
       <div className="panel-kicker">1950.06.25 – 07.01 · 강원 춘천·홍천·인제</div>
-      <h2 className="panel-title">춘천–홍천 전투</h2>
+      <h2 className="panel-title">{t('panel.battle')}</h2>
 
       <table className="fact-table">
         <tbody>
           <tr>
-            <th scope="row">국군</th>
+            <th scope="row">{t('panel.rok')}</th>
             <td>제6보병사단 (사단장 대령 김종오) — 7·2·19연대, 16포병대대</td>
           </tr>
           <tr>
-            <th scope="row">북한</th>
+            <th scope="row">{t('panel.nk')}</th>
             <td>제2군단 (군단장 중장 김광협) — 2·12·15사단, 603모터찌클연대</td>
           </tr>
           <tr>
-            <th scope="row">결과</th>
+            <th scope="row">{t('panel.result')}</th>
             <td>
-              <span className="badge badge--rok">국군 승리</span>{' '}
-              지연전 성공 후 전략적 후퇴
+              <span className="badge badge--rok">{t('panel.rokWin')}</span>{' '}
+              {t('panel.rokWinNote')}
             </td>
           </tr>
         </tbody>
@@ -44,12 +47,17 @@ export default function OverviewPanel() {
       )}
 
       <div className="panel-section">
-        <h3>피해</h3>
+        <h3>{t('panel.casualties')}</h3>
         <StatBar />
       </div>
 
       <div className="panel-section">
-        <h3>“3일 지연”의 전략적 의의</h3>
+        <h3>{t('panel.advance')}</h3>
+        <AdvanceChart />
+      </div>
+
+      <div className="panel-section">
+        <h3>{t('panel.significance')}</h3>
         <p className="panel-body">
           개전 초 전 전선이 무너지는 가운데 6사단만이 춘천–홍천에서 북한 2군단을
           약 3일간 붙들었다. 서울을 우회해 국군 주력을 포위섬멸하려던 북한군의

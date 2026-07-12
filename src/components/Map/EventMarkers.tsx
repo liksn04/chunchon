@@ -2,6 +2,7 @@ import type { GeoProjection } from 'd3-geo';
 import { project } from '../../lib/projection';
 import { events } from '../../data/events';
 import { dayByDate } from '../../data/days';
+import { approxEventIds } from '../../data/sources';
 import { useBattleStore } from '../../store/useBattleStore';
 import type { Outcome } from '../../types';
 
@@ -91,6 +92,9 @@ export default function EventMarkers({ projection }: { projection: GeoProjection
                 fontSize={11}
                 fontWeight={ev.key ? 700 : 600}
               >
+                {approxEventIds.has(ev.id) && (
+                  <tspan fill="var(--ink-faint)" fontFamily="var(--font-mono)">≈ </tspan>
+                )}
                 {ev.title}
               </text>
             )}
