@@ -27,12 +27,13 @@ function OutcomeGlyph({ outcome }: { outcome: Outcome }) {
   }
 }
 
-function EventMarkers({ projection }: { projection: GeoProjection }) {
+function EventMarkers({ projection, k = 1 }: { projection: GeoProjection; k?: number }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const selectedEventId = useBattleStore((s) => s.selectedEventId);
   const selectEvent = useBattleStore((s) => s.selectEvent);
   const visible = useBattleStore((s) => s.layers.markers);
   if (!visible) return null;
+  const sc = 1 / k; // 마커·라벨 화면상 크기 고정
 
   const activeIds =
     selectedDay === 'all' ? null : dayByDate.get(selectedDay)?.activeEventIds ?? [];
@@ -49,7 +50,7 @@ function EventMarkers({ projection }: { projection: GeoProjection }) {
           <g
             key={ev.id}
             className="event-marker"
-            transform={`translate(${x.toFixed(1)},${y.toFixed(1)})`}
+            transform={`translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${sc})`}
             role="button"
             tabIndex={0}
             aria-label={`${ev.title} — ${ev.summary}`}

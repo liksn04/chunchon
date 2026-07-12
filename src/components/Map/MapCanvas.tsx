@@ -253,12 +253,12 @@ export default function MapCanvas() {
               height={size.h * 4.5}
               fill="url(#utm-grid)"
             />
-            <TerrainLayer projection={projection} detail={transform.k >= 1.6} />
-            <PlanLayer projection={projection} />
-            <FrontLineLayer projection={projection} />
-            <ArrowLayer projection={projection} />
-            <UnitLayer projection={projection} />
-            <EventMarkers projection={projection} />
+            <TerrainLayer projection={projection} k={transform.k} detail={transform.k >= 1.6} />
+            <PlanLayer projection={projection} k={transform.k} />
+            <FrontLineLayer projection={projection} k={transform.k} />
+            <ArrowLayer projection={projection} k={transform.k} />
+            <UnitLayer projection={projection} k={transform.k} />
+            <EventMarkers projection={projection} k={transform.k} />
           </g>
 
           {/* 화면 고정 도엽 요소 */}

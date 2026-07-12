@@ -16,10 +16,11 @@ import { useBattleStore } from '../../store/useBattleStore';
 const SAMPLES = 72;
 const MORPH_MS = 700;
 
-function FrontLineLayer({ projection }: { projection: GeoProjection }) {
+function FrontLineLayer({ projection, k = 1 }: { projection: GeoProjection; k?: number }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const scrub = useBattleStore((s) => s.scrub);
   const visible = useBattleStore((s) => s.layers.front);
+  const sc = 1 / k;
 
   /* 스크러버 드래그 중: 두 날짜의 전선을 소수 인덱스로 직접 보간 (RAF 없이 즉시) */
   const scrubbed = useMemo(() => {
@@ -92,17 +93,14 @@ function FrontLineLayer({ projection }: { projection: GeoProjection }) {
           stroke="var(--nk)"
           strokeWidth={2.6}
           strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
           opacity={0.9}
         />
-        <text
-          className="map-label map-label--mono"
-          x={lx + 6}
-          y={ly + 4}
-          fontSize={10}
-          fill="var(--nk)"
-        >
-          전선 {Number(scrubbed.date.slice(5, 7))}.{Number(scrubbed.date.slice(8, 10))}
-        </text>
+        <g transform={`translate(${lx.toFixed(1)},${ly.toFixed(1)}) scale(${sc})`}>
+          <text className="map-label map-label--mono" x={6} y={4} fontSize={10} fill="var(--nk)">
+            전선 {Number(scrubbed.date.slice(5, 7))}.{Number(scrubbed.date.slice(8, 10))}
+          </text>
+        </g>
       </g>
     );
   }
@@ -118,16 +116,12 @@ function FrontLineLayer({ projection }: { projection: GeoProjection }) {
           const label = `${Number(fl.date.slice(5, 7))}.${Number(fl.date.slice(8, 10))}`;
           return (
             <g key={fl.date} opacity={0.3 + i * 0.02}>
-              <path d={d} fill="none" stroke="var(--nk)" strokeWidth={1.5} strokeDasharray="5 4" />
-              <text
-                className="map-label map-label--mono"
-                x={lx + 5}
-                y={ly + 3}
-                fontSize={8.5}
-                fill="var(--nk)"
-              >
-                {label}
-              </text>
+              <path d={d} fill="none" stroke="var(--nk)" strokeWidth={1.5} strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
+              <g transform={`translate(${lx.toFixed(1)},${ly.toFixed(1)}) scale(${sc})`}>
+                <text className="map-label map-label--mono" x={5} y={3} fontSize={8.5} fill="var(--nk)">
+                  {label}
+                </text>
+              </g>
             </g>
           );
         })}
@@ -148,17 +142,14 @@ function FrontLineLayer({ projection }: { projection: GeoProjection }) {
         stroke="var(--nk)"
         strokeWidth={2.6}
         strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
         opacity={0.9}
       />
-      <text
-        className="map-label map-label--mono"
-        x={lx + 6}
-        y={ly + 4}
-        fontSize={10}
-        fill="var(--nk)"
-      >
-        {label}
-      </text>
+      <g transform={`translate(${lx.toFixed(1)},${ly.toFixed(1)}) scale(${sc})`}>
+        <text className="map-label map-label--mono" x={6} y={4} fontSize={10} fill="var(--nk)">
+          {label}
+        </text>
+      </g>
     </g>
   );
 }

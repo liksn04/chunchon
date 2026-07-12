@@ -60,10 +60,11 @@ function markerId(a: MovementArrow) {
   return a.style === 'attack' ? `ah-fill-${a.faction}` : `ah-open-${a.faction}`;
 }
 
-function ArrowLayer({ projection }: { projection: GeoProjection }) {
+function ArrowLayer({ projection, k = 1 }: { projection: GeoProjection; k?: number }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const visible = useBattleStore((s) => s.layers.arrows);
   if (!visible) return null;
+  const sc = 1 / k;
 
   const activeIds =
     selectedDay === 'all' ? null : dayByDate.get(selectedDay)?.activeArrowIds ?? [];
@@ -89,19 +90,22 @@ function ArrowLayer({ projection }: { projection: GeoProjection }) {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeDasharray={dashed ? '8 6' : undefined}
+              vectorEffect="non-scaling-stroke"
               opacity={a.style === 'advance' ? 0.75 : 0.9}
               markerEnd={`url(#${markerId(a)})`}
             />
-            <text
-              className="map-label fade-in map-label--mono"
-              style={{ animationDelay: `${i * 0.12 + 0.4}s` }}
-              x={mid[0] + 7}
-              y={mid[1] - 6}
-              fontSize={9.5}
-              fill={color}
-            >
-              {a.label}
-            </text>
+            <g transform={`translate(${mid[0].toFixed(1)},${mid[1].toFixed(1)}) scale(${sc})`}>
+              <text
+                className="map-label fade-in map-label--mono"
+                style={{ animationDelay: `${i * 0.12 + 0.4}s` }}
+                x={7}
+                y={-6}
+                fontSize={9.5}
+                fill={color}
+              >
+                {a.label}
+              </text>
+            </g>
           </g>
         );
       })}

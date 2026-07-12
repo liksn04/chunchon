@@ -46,13 +46,14 @@ function BranchGlyph({ symbol, color }: { symbol: MilitaryUnit['symbol']; color:
   }
 }
 
-function UnitLayer({ projection }: { projection: GeoProjection }) {
+function UnitLayer({ projection, k = 1 }: { projection: GeoProjection; k?: number }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const visible = useBattleStore((s) => s.layers.units);
   if (!visible || selectedDay === 'all') return null;
 
   const positions = unitPositionsByDate[selectedDay];
   if (!positions) return null;
+  const sc = 1 / k; // 부대기호 화면상 크기 고정
 
   return (
     <g aria-hidden="true">
@@ -65,7 +66,7 @@ function UnitLayer({ projection }: { projection: GeoProjection }) {
           <g
             key={pos.unitId}
             className="fade-in"
-            transform={`translate(${x.toFixed(1)},${y.toFixed(1)})`}
+            transform={`translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${sc})`}
           >
             <title>{`${u.designation}${pos.note ? ` — ${pos.note}` : ''}`}</title>
             {/* 프레임 */}

@@ -73,6 +73,23 @@ export const people: Person[] = [
 
 export const personById = new Map(people.map((p) => [p.id, p]));
 
+/** 부가 정보 — 한자 표기, 훈장·특진 등 (초상은 실사진이 아닌 도식) */
+export interface PersonMeta {
+  hanja?: string;
+  medals?: string[];
+}
+
+export const personMeta: Record<string, PersonMeta> = {
+  'sim-il': { hanja: '沈鎰', medals: ['태극무공훈장'] },
+  'kim-jongo': { hanja: '金鍾五', medals: ['태극무공훈장'] },
+  'im-butaek': { hanja: '林富澤' },
+  'kim-yongbae': { hanja: '金容培' },
+  'jeong-ogyeong': { hanja: '鄭五景' },
+  'ham-byeongseon': { hanja: '咸炳善' },
+  'min-byeonggwon': { hanja: '閔丙權' },
+  'jo-daljin': { hanja: '趙達鎭', medals: ['2계급 특진', '무공훈장'] },
+};
+
 /** 사건별 관련 인물 */
 export const eventPeople: Record<string, string[]> = {
   oksanpo: ['sim-il', 'im-butaek', 'kim-yongbae'],

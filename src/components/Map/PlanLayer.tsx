@@ -8,10 +8,11 @@ import { useBattleStore } from '../../store/useBattleStore';
  * 유령 포위망 — 북한 2군단의 실현되지 못한 계획선.
  * 항상 반투명 점선으로 깔리고, 6/28 이후엔 ✕ 표시와 "포위계획 무산" 스탬프가 찍힌다.
  */
-function PlanLayer({ projection }: { projection: GeoProjection }) {
+function PlanLayer({ projection, k = 1 }: { projection: GeoProjection; k?: number }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const visible = useBattleStore((s) => s.layers.plan);
   if (!visible) return null;
+  const sc = 1 / k;
 
   const failed =
     selectedDay === 'all' || (selectedDay !== 'all' && selectedDay >= PLAN_FAILED_FROM);
@@ -33,17 +34,14 @@ function PlanLayer({ projection }: { projection: GeoProjection }) {
               strokeWidth={2.6}
               strokeDasharray="11 8"
               strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
               markerEnd="url(#ah-open-NK)"
             />
-            <text
-              className="map-label map-label--mono"
-              x={labelAt[0] + 8}
-              y={labelAt[1] + 14}
-              fontSize={9.5}
-              fill="var(--nk)"
-            >
-              {p.label}
-            </text>
+            <g transform={`translate(${labelAt[0].toFixed(1)},${labelAt[1].toFixed(1)}) scale(${sc})`}>
+              <text className="map-label map-label--mono" x={8} y={14} fontSize={9.5} fill="var(--nk)">
+                {p.label}
+              </text>
+            </g>
             {failed &&
               // path[1]은 기본 프레이밍 안, path[2]는 남서쪽 화면 밖 — 팬하면 보인다
               [1, 2].map((idx) => {
@@ -52,7 +50,8 @@ function PlanLayer({ projection }: { projection: GeoProjection }) {
                   <path
                     key={idx}
                     className="fade-in"
-                    d={`M${x - 6},${y - 6} L${x + 6},${y + 6} M${x - 6},${y + 6} L${x + 6},${y - 6}`}
+                    transform={`translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${sc})`}
+                    d="M-6,-6 L6,6 M-6,6 L6,-6"
                     stroke="var(--nk)"
                     strokeWidth={3}
                     opacity={0.9}
@@ -66,7 +65,7 @@ function PlanLayer({ projection }: { projection: GeoProjection }) {
       {failed && (
         <g
           className="fade-in"
-          transform={`translate(${sx.toFixed(1)},${sy.toFixed(1)}) rotate(-7)`}
+          transform={`translate(${sx.toFixed(1)},${sy.toFixed(1)}) scale(${sc}) rotate(-7)`}
           opacity={0.75}
         >
           <rect x={-74} y={-19} width={148} height={38} fill="none" stroke="var(--nk)" strokeWidth={2.5} />
