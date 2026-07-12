@@ -13,6 +13,10 @@ export interface MilitaryUnit {
   parent?: string;                     // MilitaryUnit id
   commander?: string;
   symbol: 'infantry' | 'artillery' | 'armor' | 'motorized';
+  role?: string;                       // 한 줄 역할
+  detail?: string;                     // 전투에서의 서술
+  equipment?: string;                  // 주요 장비
+  strength?: string;                   // 병력·규모
 }
 
 export interface BattleEvent {

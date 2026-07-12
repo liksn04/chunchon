@@ -1265,6 +1265,63 @@ button {
   background: var(--nk-soft);
 }
 
+.unit-chip--btn {
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.unit-chip--btn:hover {
+  filter: brightness(0.94);
+}
+
+.unit-chip-more {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  opacity: 0.65;
+}
+
+/* 부대 카드 엠블럼 */
+.dossier-photo--unit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--ink);
+  background: var(--panel-paper);
+}
+
+.emblem-svg {
+  display: block;
+  width: 82px;
+  height: auto;
+}
+
+.ribbon--plain {
+  color: var(--ink-soft);
+  background: rgba(35, 41, 46, 0.06);
+  border-color: var(--ink-faint);
+  font-weight: 600;
+}
+
+:root[data-theme='dark'] .ribbon--plain {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.link-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--rok);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font: inherit;
+  cursor: pointer;
+}
+
+:root[data-theme='dark'] .dossier--NK .link-btn,
+.dossier--NK .link-btn {
+  color: var(--nk);
+}
+
 .tag-list {
   display: flex;
   flex-wrap: wrap;

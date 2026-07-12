@@ -48,6 +48,7 @@ function BranchGlyph({ symbol, color }: { symbol: MilitaryUnit['symbol']; color:
 
 function UnitLayer({ projection, k = 1 }: { projection: GeoProjection; k?: number }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
+  const selectUnit = useBattleStore((s) => s.selectUnit);
   const visible = useBattleStore((s) => s.layers.units);
   if (!visible || selectedDay === 'all') return null;
 
@@ -56,7 +57,7 @@ function UnitLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numbe
   const sc = 1 / k; // 부대기호 화면상 크기 고정
 
   return (
-    <g aria-hidden="true">
+    <g>
       {positions.map((pos) => {
         const u = unitById.get(pos.unitId);
         if (!u) return null;
@@ -65,10 +66,25 @@ function UnitLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numbe
         return (
           <g
             key={pos.unitId}
-            className="fade-in"
+            className="fade-in event-marker"
             transform={`translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${sc})`}
+            role="button"
+            tabIndex={0}
+            aria-label={`${u.designation} 부대 기록`}
+            onClick={(e) => {
+              e.stopPropagation();
+              selectUnit(pos.unitId);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                selectUnit(pos.unitId);
+              }
+            }}
           >
             <title>{`${u.designation}${pos.note ? ` — ${pos.note}` : ''}`}</title>
+            {/* 히트 타깃 */}
+            <rect x={-14} y={-11} width={34} height={22} fill="transparent" />
             {/* 프레임 */}
             <rect
               x={-10}

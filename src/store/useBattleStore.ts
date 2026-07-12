@@ -29,6 +29,7 @@ interface LayerVisibility {
 interface BattleState {
   selectedDay: DayKey;
   selectedEventId: string | null;
+  selectedUnitId: string | null;
   layers: LayerVisibility;
   /** 브리핑 진행 중이면 대본 인덱스, 아니면 null */
   briefIndex: number | null;
@@ -38,6 +39,7 @@ interface BattleState {
   lang: Lang;
   setDay: (d: DayKey) => void;
   selectEvent: (id: string | null) => void;
+  selectUnit: (id: string | null) => void;
   toggleLayer: (k: keyof LayerVisibility) => void;
   play: () => void;
   stop: () => void;
@@ -71,6 +73,7 @@ function initialLang(): Lang {
 export const useBattleStore = create<BattleState>((set, get) => ({
   selectedDay: 'all',
   selectedEventId: null,
+  selectedUnitId: null,
   layers: {
     arrows: true,
     front: true,
@@ -87,6 +90,7 @@ export const useBattleStore = create<BattleState>((set, get) => ({
   setDay: (d) => set({ selectedDay: d, selectedEventId: null, briefIndex: null }),
   // 사용자가 직접 사건을 열거나 닫으면 브리핑을 멈춘다
   selectEvent: (id) => set({ selectedEventId: id, briefIndex: null }),
+  selectUnit: (id) => set({ selectedUnitId: id }),
   toggleLayer: (k) =>
     set((s) => ({ layers: { ...s.layers, [k]: !s.layers[k] } })),
   play: () => get().setBriefStep(0),

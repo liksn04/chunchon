@@ -30,6 +30,7 @@ function formatDate(date: string, time?: string) {
 export default function EventDetailPanel({ eventId }: { eventId: string }) {
   const t = useT();
   const selectEvent = useBattleStore((s) => s.selectEvent);
+  const selectUnit = useBattleStore((s) => s.selectUnit);
   const [openPerson, setOpenPerson] = useState<string | null>(null);
   const ev = eventById.get(eventId);
   if (!ev) return null;
@@ -78,12 +79,19 @@ export default function EventDetailPanel({ eventId }: { eventId: string }) {
           <h3>{t('panel.units')}</h3>
           <div className="unit-chips">
             {evUnits.map((u) => (
-              <span key={u.id} className={`unit-chip unit-chip--${u.faction}`}>
+              <button
+                key={u.id}
+                type="button"
+                className={`unit-chip unit-chip--btn unit-chip--${u.faction}`}
+                onClick={() => selectUnit(u.id)}
+                title={`${u.designation} 부대 기록`}
+              >
                 {u.designation}
                 {u.commander && (
                   <span style={{ fontWeight: 400, opacity: 0.8 }}>{u.commander}</span>
                 )}
-              </span>
+                <span className="unit-chip-more">›</span>
+              </button>
             ))}
           </div>
         </div>
