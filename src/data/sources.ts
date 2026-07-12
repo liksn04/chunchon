@@ -47,22 +47,58 @@ export const sources: Source[] = [
     publisher: '국방부 군사편찬연구소',
     url: 'https://www.imhc.mil.kr/',
   },
+  {
+    id: 'joongang',
+    label: '6·25 전환점 춘천대첩',
+    publisher: '중앙일보 Focus 인사이드',
+    url: 'https://www.joongang.co.kr/article/25172273',
+  },
+  {
+    id: 'kwnews',
+    label: '대한민국을 지켜낸 3일',
+    publisher: '강원일보',
+    url: 'https://www.kwnews.co.kr/page/view/2023011711132167586',
+  },
+  {
+    id: 'wiki-simil',
+    label: '심일',
+    publisher: '위키백과',
+    url: 'https://ko.wikipedia.org/wiki/%EC%8B%AC%EC%9D%BC',
+  },
+  {
+    id: 'wiki-jodaljin',
+    label: '조달진',
+    publisher: '위키백과',
+    url: 'https://ko.wikipedia.org/wiki/%EC%A1%B0%EB%8B%AC%EC%A7%84',
+  },
+  {
+    id: 'wiki-kimjongo',
+    label: '김종오',
+    publisher: '위키백과',
+    url: 'https://ko.wikipedia.org/wiki/%EA%B9%80%EC%A2%85%EC%98%A4',
+  },
+  {
+    id: 'jinsil-bodo',
+    label: '청원 국민보도연맹 사건',
+    publisher: '진실·화해를위한과거사정리위원회',
+    url: 'https://jinsil.go.kr/KoreanWar/25.do',
+  },
 ];
 
 export const sourceById = new Map(sources.map((s) => [s.id, s]));
 
 /** 사건별 참고 출처 */
 export const eventSources: Record<string, string[]> = {
-  'mojin-mine': ['namu', 'encykorea'],
-  oksanpo: ['encykorea', 'wiki-chuncheon', 'mpva'],
+  'mojin-mine': ['namu', 'encykorea', 'kwnews'],
+  oksanpo: ['encykorea', 'wiki-chuncheon', 'mpva', 'joongang', 'wiki-simil'],
   'hongcheon-breakthrough': ['namu', 'encykorea'],
-  'soyang-defense': ['namu', 'encykorea'],
+  'soyang-defense': ['namu', 'encykorea', 'joongang'],
   'bongui-fall': ['namu', 'wiki-chuncheon'],
-  garaemok: ['namu', 'mpva', 'imhc'],
+  garaemok: ['namu', 'mpva', 'imhc', 'kwnews'],
   malgogae: ['nculture-malgogae', 'namu'],
   'wonchang-geumbyeong': ['namu', 'imhc'],
-  keunmalgogae: ['nculture-malgogae', 'namu', 'mpva'],
-  withdrawal: ['encykorea', 'namu', 'imhc'],
+  keunmalgogae: ['nculture-malgogae', 'namu', 'mpva', 'wiki-jodaljin'],
+  withdrawal: ['encykorea', 'namu', 'imhc', 'wiki-kimjongo'],
 };
 
 /**

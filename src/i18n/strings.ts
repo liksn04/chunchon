@@ -60,6 +60,7 @@ export const strings: Record<string, { ko: string; en: string }> = {
   'panel.casualties': { ko: '피해', en: 'Casualties' },
   'panel.advance': { ko: '전선 남하 속도', en: 'Front advance rate' },
   'panel.significance': { ko: '“3일 지연”의 전략적 의의', en: 'Why the “3-day delay” mattered' },
+  'panel.shadow': { ko: '전투의 그늘', en: 'The darker record' },
   'panel.units': { ko: '교전 부대', en: 'Units engaged' },
   'panel.people': { ko: '인물', en: 'People' },
   'panel.course': { ko: '경과', en: 'Course' },
