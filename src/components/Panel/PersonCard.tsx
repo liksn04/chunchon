@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { personById, personMeta } from '../../data/people';
+import RankInsignia from './RankInsignia';
 import type { Faction } from '../../types';
 
 type PortraitKind = 'senior' | 'officer' | 'enlisted';
@@ -119,7 +120,14 @@ export default function PersonCard({
               {p.name}
               {meta.hanja && <span className="dossier-hanja">{meta.hanja}</span>}
             </div>
-            <div className="dossier-role">{p.rankRole}</div>
+            <div className="dossier-role">
+              {p.faction === 'ROK' && (
+                <span className="dossier-rankmark" title="1950년식 국군 계급장(도식)">
+                  <RankInsignia rankRole={p.rankRole} title={`1950년식 계급장 · ${p.rankRole}`} />
+                </span>
+              )}
+              {p.rankRole}
+            </div>
             {meta.medals && meta.medals.length > 0 && (
               <div className="dossier-medals">
                 {meta.medals.map((m) => (
