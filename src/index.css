@@ -1050,8 +1050,12 @@ button {
 
 .rank-insignia {
   display: block;
-  height: 20px;
+  height: 30px;
   width: auto;
+}
+
+.rank-insignia--sleeve {
+  height: 24px;
 }
 
 .dossier-medals {

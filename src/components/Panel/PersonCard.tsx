@@ -4,11 +4,10 @@ import { personById, personMeta } from '../../data/people';
 import RankInsignia from './RankInsignia';
 import type { Faction } from '../../types';
 
-type PortraitKind = 'senior' | 'officer' | 'enlisted';
+type PortraitKind = 'officer' | 'enlisted';
 
 function portraitKind(rankRole: string): PortraitKind {
   if (/일병|이병|병$|병 /.test(rankRole)) return 'enlisted';
-  if (/대령|사단장/.test(rankRole)) return 'senior';
   return 'officer';
 }
 
@@ -45,12 +44,6 @@ function Portrait({ kind, faction }: { kind: PortraitKind; faction: Faction }) {
           </>
         )}
       </g>
-      {kind === 'senior' && (
-        <path
-          d="M40,32.2 l1.1,2.3 2.5,.2 -1.9,1.6 .6,2.5 -2.3,-1.3 -2.3,1.3 .6,-2.5 -1.9,-1.6 2.5,-.2 Z"
-          fill="var(--panel-paper)"
-        />
-      )}
       {/* 사진 모서리 등록표식 */}
       <g stroke={col} strokeWidth="1.4" opacity="0.5">
         <path d="M4,12 V4 H12" fill="none" />
@@ -122,8 +115,8 @@ export default function PersonCard({
             </div>
             <div className="dossier-role">
               {p.faction === 'ROK' && (
-                <span className="dossier-rankmark" title="1950년식 국군 계급장(도식)">
-                  <RankInsignia rankRole={p.rankRole} title={`1950년식 계급장 · ${p.rankRole}`} />
+                <span className="dossier-rankmark" title="6.25 당시 국군 계급장(도식)">
+                  <RankInsignia rankRole={p.rankRole} title={`6.25 당시 계급장 · ${p.rankRole}`} />
                 </span>
               )}
               {p.rankRole}
