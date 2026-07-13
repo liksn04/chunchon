@@ -94,6 +94,18 @@ function ArrowLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numb
               opacity={a.style === 'advance' ? 0.75 : 0.9}
               markerEnd={`url(#${markerId(a)})`}
             />
+            {/* 행군하듯 흐르는 점선 오버레이 */}
+            <path
+              d={d}
+              className="arrow-flow"
+              fill="none"
+              stroke={a.faction === 'ROK' ? '#eaf0fb' : '#fbeaea'}
+              strokeWidth={Math.max(1.1, STROKE[a.style] - 1.6)}
+              strokeLinecap="round"
+              strokeDasharray="0.5 7"
+              vectorEffect="non-scaling-stroke"
+              opacity={0.8}
+            />
             <g transform={`translate(${mid[0].toFixed(1)},${mid[1].toFixed(1)}) scale(${sc})`}>
               <text
                 className="map-label fade-in map-label--mono"

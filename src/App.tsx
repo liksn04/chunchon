@@ -7,6 +7,7 @@ import EventDetailPanel from './components/Panel/EventDetailPanel';
 import UnitCard from './components/Panel/UnitCard';
 import EquipmentCard from './components/Panel/EquipmentCard';
 import Coachmarks from './components/Onboarding/Coachmarks';
+import TitleIntro from './components/Onboarding/TitleIntro';
 import { useBattleStore, briefScript } from './store/useBattleStore';
 import { useT } from './i18n';
 import { days, dayByDate } from './data/days';
@@ -166,6 +167,7 @@ export default function App() {
 
       <UnitCard />
       <EquipmentCard />
+      <TitleIntro />
       <Coachmarks />
     </div>
   );
