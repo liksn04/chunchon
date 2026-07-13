@@ -5,6 +5,7 @@ import DayRail from './components/Timeline/DayRail';
 import OverviewPanel from './components/Panel/OverviewPanel';
 import EventDetailPanel from './components/Panel/EventDetailPanel';
 import UnitCard from './components/Panel/UnitCard';
+import EquipmentCard from './components/Panel/EquipmentCard';
 import Coachmarks from './components/Onboarding/Coachmarks';
 import { useBattleStore, briefScript } from './store/useBattleStore';
 import { useT } from './i18n';
@@ -164,6 +165,7 @@ export default function App() {
       </main>
 
       <UnitCard />
+      <EquipmentCard />
       <Coachmarks />
     </div>
   );

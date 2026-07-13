@@ -15,7 +15,8 @@ export interface MilitaryUnit {
   symbol: 'infantry' | 'artillery' | 'armor' | 'motorized';
   role?: string;                       // 한 줄 역할
   detail?: string;                     // 전투에서의 서술
-  equipment?: string;                  // 주요 장비
+  equipment?: string;                  // 주요 장비(텍스트)
+  equipmentIds?: string[];             // 장비 카드 id
   strength?: string;                   // 병력·규모
 }
 

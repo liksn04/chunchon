@@ -30,6 +30,7 @@ interface BattleState {
   selectedDay: DayKey;
   selectedEventId: string | null;
   selectedUnitId: string | null;
+  selectedEquipId: string | null;
   layers: LayerVisibility;
   /** 브리핑 진행 중이면 대본 인덱스, 아니면 null */
   briefIndex: number | null;
@@ -40,6 +41,7 @@ interface BattleState {
   setDay: (d: DayKey) => void;
   selectEvent: (id: string | null) => void;
   selectUnit: (id: string | null) => void;
+  selectEquip: (id: string | null) => void;
   toggleLayer: (k: keyof LayerVisibility) => void;
   play: () => void;
   stop: () => void;
@@ -74,6 +76,7 @@ export const useBattleStore = create<BattleState>((set, get) => ({
   selectedDay: 'all',
   selectedEventId: null,
   selectedUnitId: null,
+  selectedEquipId: null,
   layers: {
     arrows: true,
     front: true,
@@ -91,6 +94,7 @@ export const useBattleStore = create<BattleState>((set, get) => ({
   // 사용자가 직접 사건을 열거나 닫으면 브리핑을 멈춘다
   selectEvent: (id) => set({ selectedEventId: id, briefIndex: null }),
   selectUnit: (id) => set({ selectedUnitId: id }),
+  selectEquip: (id) => set({ selectedEquipId: id }),
   toggleLayer: (k) =>
     set((s) => ({ layers: { ...s.layers, [k]: !s.layers[k] } })),
   play: () => get().setBriefStep(0),

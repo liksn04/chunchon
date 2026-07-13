@@ -1295,6 +1295,55 @@ button {
   height: auto;
 }
 
+/* 장비 카드 */
+.equip-hero {
+  padding: 14px 16px 4px;
+  display: flex;
+  justify-content: center;
+  background: repeating-linear-gradient(
+      45deg,
+      rgba(35, 41, 46, 0.03) 0 6px,
+      transparent 6px 12px
+    ),
+    var(--map-buff-deep);
+  border-bottom: 1px solid var(--ink-faint);
+}
+
+.silhouette-svg {
+  width: min(280px, 78%);
+  height: auto;
+}
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.spec-cell {
+  border: 1px solid var(--ink-faint);
+  border-radius: 4px;
+  padding: 6px 9px;
+  background: rgba(35, 41, 46, 0.03);
+}
+
+:root[data-theme='dark'] .spec-cell {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.spec-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.spec-value {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-top: 1px;
+}
+
 .ribbon--plain {
   color: var(--ink-soft);
   background: rgba(35, 41, 46, 0.06);

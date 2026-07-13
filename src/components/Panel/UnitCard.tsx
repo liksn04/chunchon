@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { unitById } from '../../data/units';
+import { equipmentById } from '../../data/equipment';
 import { useBattleStore } from '../../store/useBattleStore';
 import type { MilitaryUnit } from '../../types';
 
@@ -62,6 +63,7 @@ function UnitEmblem({ u }: { u: MilitaryUnit }) {
 export default function UnitCard() {
   const selectedUnitId = useBattleStore((s) => s.selectedUnitId);
   const selectUnit = useBattleStore((s) => s.selectUnit);
+  const selectEquip = useBattleStore((s) => s.selectEquip);
   const u = selectedUnitId ? unitById.get(selectedUnitId) : undefined;
 
   useEffect(() => {
@@ -135,7 +137,7 @@ export default function UnitCard() {
                     <td>{u.strength}</td>
                   </tr>
                 )}
-                {u.equipment && (
+                {u.equipment && !u.equipmentIds && (
                   <tr>
                     <th scope="row">장비</th>
                     <td>{u.equipment}</td>
@@ -143,6 +145,29 @@ export default function UnitCard() {
                 )}
               </tbody>
             </table>
+          )}
+          {u.equipmentIds && u.equipmentIds.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <div className="dossier-body-label">주요 장비</div>
+              <div className="unit-chips">
+                {u.equipmentIds.map((id) => {
+                  const eq = equipmentById.get(id);
+                  if (!eq) return null;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      className={`unit-chip unit-chip--btn unit-chip--${eq.user}`}
+                      onClick={() => selectEquip(id)}
+                      title={`${eq.name} 제원`}
+                    >
+                      {eq.name}
+                      <span className="unit-chip-more">›</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
           {u.detail && (
             <>
