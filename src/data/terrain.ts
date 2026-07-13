@@ -9,6 +9,9 @@ export const terrainPoints: TerrainPoint[] = [
   { id: 'hoengseong',kind: 'city', name: '횡성', coord: [127.985, 37.492] },
   { id: 'jecheon',   kind: 'city', name: '제천', coord: [128.191, 37.132] },
   { id: 'chungju',   kind: 'city', name: '충주', coord: [127.926, 36.991], meta: { note: '철수 종점 (7/1)' } },
+  // 서편 맥락 — 북한군의 목표. 6사단 지연전이 이 축선(서울 우회 포위)을 무산시켰다.
+  { id: 'seoul',     kind: 'city', name: '서울', coord: [126.978, 37.566], meta: { note: '적 최종 목표 (서편 맥락)' } },
+  { id: 'suwon',     kind: 'city', name: '수원', coord: [127.010, 37.263], meta: { note: '2군단 재집결 지향 (7/5경)' } },
 
   // ── 적 집결지 ──
   { id: 'hwacheon',  kind: 'assembly', name: '화천', coord: [127.708, 38.106], meta: { note: '적 집결 포착' } },
@@ -104,6 +107,21 @@ export const terrainLines: TerrainLine[] = [
       [127.790, 37.715],
       [127.700, 37.735],
       [127.620, 37.740],
+    ],
+  },
+  {
+    id: 'han-river',
+    kind: 'river',
+    name: '한강',
+    approx: true,
+    coordinates: [
+      [127.330, 37.535], // 두물머리(양수리) 부근
+      [127.210, 37.540],
+      [127.100, 37.520], // 잠실 부근
+      [126.985, 37.520], // 서울 남
+      [126.895, 37.560],
+      [126.815, 37.585], // 행주 부근
+      [126.720, 37.615],
     ],
   },
   {

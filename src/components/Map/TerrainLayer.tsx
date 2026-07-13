@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import type { GeoProjection } from 'd3-geo';
-import { project, lineToPath, lineToSmoothPath, BBOX } from '../../lib/projection';
+import { project, lineToPath, lineToSmoothPath, RELIEF_BBOX } from '../../lib/projection';
 import { terrainPoints, terrainLines, boundary38 } from '../../data/terrain';
 import { useBattleStore } from '../../store/useBattleStore';
 import type { TerrainPoint } from '../../types';
@@ -58,9 +58,9 @@ function TerrainLayer({
   const geo = useMemo(() => {
     const rivers = terrainLines.filter((l) => l.kind === 'river');
     const roads = terrainLines.filter((l) => l.kind === 'road');
-    // 음영기복 이미지 배치: bbox 북서(좌상)~남동(우하)
-    const nw = project(projection, [BBOX.sw[0], BBOX.ne[1]]);
-    const se = project(projection, [BBOX.ne[0], BBOX.sw[1]]);
+    // 음영기복 이미지 배치: 넓은 릴리프 범위 북서(좌상)~남동(우하)
+    const nw = project(projection, [RELIEF_BBOX.sw[0], RELIEF_BBOX.ne[1]]);
+    const se = project(projection, [RELIEF_BBOX.ne[0], RELIEF_BBOX.sw[1]]);
     return {
       rivers: rivers.map((r) => ({ id: r.id, name: r.name, d: lineToSmoothPath(projection, r.coordinates), coords: r.coordinates })),
       roads: roads.map((r) => ({ id: r.id, name: r.name, d: lineToSmoothPath(projection, r.coordinates), coords: r.coordinates })),

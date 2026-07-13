@@ -10,6 +10,15 @@ export const BBOX = {
   ne: [128.25, 38.15] as LngLat,
 };
 
+/**
+ * 음영기복 릴리프 범위 — 서울(서)·충주(남)·인제(동)·화천(북)까지 넓게 덮어
+ * 팬해도 지형이 끊기지 않게 한다. (프레이밍 BBOX보다 훨씬 큼)
+ */
+export const RELIEF_BBOX = {
+  sw: [126.55, 36.80] as LngLat,
+  ne: [128.65, 38.30] as LngLat,
+};
+
 const bboxFeature = {
   type: 'Feature' as const,
   properties: {},

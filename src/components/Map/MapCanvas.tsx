@@ -180,9 +180,10 @@ export default function MapCanvas() {
     const z = zoom<SVGSVGElement, unknown>()
       .scaleExtent([MIN_ZOOM, MAX_ZOOM])
       .translateExtent([
-        // 남쪽으로 넉넉히 — 철수로(횡성·원주·제천·충주)를 팬으로 따라갈 수 있게
-        [-size.w * 0.3, -size.h * 0.2],
-        [size.w * 1.3, size.h * 2.6],
+        // 서쪽(서울)·남쪽(철수로: 횡성·원주·제천·충주)·동쪽(설악)까지
+        // 넓게 팬 가능하게 — 확장 릴리프 지형이 끊기지 않는 범위
+        [-size.w * 1.5, -size.h * 0.5],
+        [size.w * 1.7, size.h * 2.9],
       ])
       .on('zoom', (e) => setTransform(e.transform));
     svg.call(z);
