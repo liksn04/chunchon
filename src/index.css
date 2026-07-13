@@ -882,6 +882,76 @@ button {
   font-weight: 500;
 }
 
+.badge--coord-ok {
+  background: transparent;
+  color: var(--rok);
+  border: 1px solid color-mix(in srgb, var(--rok) 45%, transparent);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* 좌표 근거 — 사건 헤더 아래 학술 메모 */
+.coord-basis {
+  margin: 6px 0 2px;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  border-left: 2px solid var(--ink-faint);
+  border-radius: 2px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.coord-basis-label {
+  display: inline-block;
+  margin-right: 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* 주장별 각주 */
+.footnote-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.footnote {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.footnote-claim {
+  display: block;
+  font-weight: 700;
+  color: var(--ink);
+}
+.footnote-claim::before {
+  content: '“';
+}
+.footnote-claim::after {
+  content: '”';
+}
+.footnote-note {
+  display: block;
+  color: var(--ink-soft);
+  margin-top: 1px;
+}
+.footnote-cites {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+}
+.footnote-cites a {
+  color: var(--rok);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ───────── 인물 칩 · 카드 ───────── */
 .person-chip {
   display: inline-flex;

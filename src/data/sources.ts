@@ -100,19 +100,3 @@ export const eventSources: Record<string, string[]> = {
   keunmalgogae: ['nculture-malgogae', 'namu', 'mpva', 'wiki-jodaljin'],
   withdrawal: ['encykorea', 'namu', 'imhc', 'wiki-kimjongo'],
 };
-
-/**
- * 좌표가 도식적 근사(⚠)인 사건 — "위치 추정" 배지 대상.
- * 실제 지점에서 시각적 겹침 방지를 위해 미세 오프셋한 경우도 포함한다.
- */
-export const approxEventIds = new Set<string>([
-  'mojin-mine',
-  'oksanpo',
-  'hongcheon-breakthrough',
-  'soyang-defense',
-  'bongui-fall',
-  'garaemok',
-  'malgogae',
-  'wonchang-geumbyeong',
-  'keunmalgogae',
-]);

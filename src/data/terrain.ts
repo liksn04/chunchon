@@ -27,9 +27,10 @@ export const terrainPoints: TerrainPoint[] = [
   { id: 'yanggu',    kind: 'assembly', name: '양구', coord: [127.990, 38.108], meta: { note: '적 집결 포착' } },
 
   // ── 산 ──
-  { id: 'bongui',    kind: 'peak', name: '봉의산', coord: [127.731, 37.887], meta: { elevation: 301, note: '6/27 피탈' } },
-  // 금병산: 춘천 신동면, 김유정역 북동편 (실측 보정)
-  { id: 'geumbyeong',kind: 'peak', name: '금병산', coord: [127.740, 37.806], meta: { elevation: 652, note: '6/28 방어' } },
+  // 봉의산: 춘천 시가 북동, 정상 해발 301.5m (정상 좌표 실측 보정)
+  { id: 'bongui',    kind: 'peak', name: '봉의산', coord: [127.7307, 37.8897], meta: { elevation: 302, note: '6/27 피탈' } },
+  // 금병산: 춘천 신동면, 김유정역 북동편, 정상 해발 652m (정상 좌표 실측 보정)
+  { id: 'geumbyeong',kind: 'peak', name: '금병산', coord: [127.7369, 37.8016], meta: { elevation: 652, note: '6/28 방어' } },
   // 광역 주요 산 — 팬/줌 시 지형 인지용 (대략 위치·표고)
   { id: 'daeryong',  kind: 'peak', name: '대룡산', coord: [127.792, 37.855], meta: { elevation: 899 } },
   { id: 'gari',      kind: 'peak', name: '가리산', coord: [127.905, 37.905], meta: { elevation: 1051 } },

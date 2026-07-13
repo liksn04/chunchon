@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { eventById } from '../../data/events';
 import { unitById } from '../../data/units';
 import { eventPeople, personById } from '../../data/people';
-import { eventSources, sourceById, approxEventIds } from '../../data/sources';
+import { eventSources, sourceById } from '../../data/sources';
+import { eventCoordNotes, type CoordConfidence } from '../../data/geo';
+import { footnotesByEvent } from '../../data/footnotes';
 import { useBattleStore } from '../../store/useBattleStore';
 import { useT } from '../../i18n';
 import PersonCard from './PersonCard';
@@ -45,7 +47,13 @@ export default function EventDetailPanel({ eventId }: { eventId: string }) {
   const refs = (eventSources[ev.id] ?? [])
     .map((id) => sourceById.get(id))
     .filter((s) => s !== undefined);
-  const approx = approxEventIds.has(ev.id);
+  const coordNote = eventCoordNotes[ev.id];
+  const notes = footnotesByEvent[ev.id] ?? [];
+  const badgeKey: Record<CoordConfidence, string> = {
+    confirmed: 'badge.confirmed',
+    offset: 'badge.offset',
+    estimated: 'badge.estimated',
+  };
 
   return (
     <div className="panel-inner">
@@ -67,12 +75,22 @@ export default function EventDetailPanel({ eventId }: { eventId: string }) {
         <span className="meta-datetime">{formatDate(ev.date, ev.time)}</span>
         <span className={`badge ${outcomeCls}`}>{t(`outcome.${ev.outcome}`)}</span>
         {ev.key && <span className="badge badge--key">{t('badge.key')}</span>}
-        {approx && (
-          <span className="badge badge--approx" title="지도 위 위치는 도식적 근사값입니다">
-            {t('badge.approx')}
+        {coordNote && (
+          <span
+            className={`badge badge--${coordNote.confidence === 'confirmed' ? 'coord-ok' : 'approx'}`}
+            title={coordNote.basis}
+          >
+            {t(badgeKey[coordNote.confidence])}
           </span>
         )}
       </div>
+
+      {coordNote && (
+        <p className="coord-basis">
+          <span className="coord-basis-label">{t('panel.coordBasis')}</span>
+          {coordNote.basis}
+        </p>
+      )}
 
       {evUnits.length > 0 && (
         <div className="panel-section">
@@ -141,6 +159,37 @@ export default function EventDetailPanel({ eventId }: { eventId: string }) {
         </div>
       )}
 
+      {notes.length > 0 && (
+        <div className="panel-section">
+          <h3>{t('panel.footnotes')}</h3>
+          <ol className="footnote-list">
+            {notes.map((f, i) => {
+              const fs = f.sourceIds
+                .map((id) => sourceById.get(id))
+                .filter((s) => s !== undefined);
+              return (
+                <li key={i} className="footnote">
+                  <span className="footnote-claim">{f.claim}</span>
+                  <span className="footnote-note">{f.note}</span>
+                  {fs.length > 0 && (
+                    <span className="footnote-cites">
+                      {fs.map((s, j) => (
+                        <span key={s.id}>
+                          {j > 0 && ' · '}
+                          <a href={s.url} target="_blank" rel="noreferrer noopener">
+                            {s.publisher}
+                          </a>
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
+
       {refs.length > 0 && (
         <div className="panel-section">
           <h3>{t('panel.sources')}</h3>
@@ -154,10 +203,10 @@ export default function EventDetailPanel({ eventId }: { eventId: string }) {
               </li>
             ))}
           </ul>
-          {approx && (
+          {coordNote && coordNote.confidence !== 'confirmed' && (
             <p className="source-note" style={{ marginTop: 8, borderTop: 'none', paddingTop: 0 }}>
-              ≈ 표시 사건의 지도 좌표는 1950년 지형 기준의 도식적 근사값이며, 서술은
-              위 출처를 재서술한 것입니다.
+              ≈ 이 사건의 지도 좌표는 1950년 지형 기준의 근사·오프셋값입니다(위 “좌표 근거”
+              참조). 서술은 위 출처를 재서술한 것입니다.
             </p>
           )}
         </div>
