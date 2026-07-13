@@ -12,6 +12,15 @@ export const terrainPoints: TerrainPoint[] = [
   // 서편 맥락 — 북한군의 목표. 6사단 지연전이 이 축선(서울 우회 포위)을 무산시켰다.
   { id: 'seoul',     kind: 'city', name: '서울', coord: [126.978, 37.566], meta: { note: '적 최종 목표 (서편 맥락)' } },
   { id: 'suwon',     kind: 'city', name: '수원', coord: [127.010, 37.263], meta: { note: '2군단 재집결 지향 (7/5경)' } },
+  // 서·남·주변 도시(광역 맥락, 팬 시 노출) — 대략 위치
+  { id: 'uijeongbu', kind: 'city', name: '의정부', coord: [127.047, 37.738] },
+  { id: 'gapyeong',  kind: 'city', name: '가평', coord: [127.511, 37.831] },
+  { id: 'cheongpyeong', kind: 'city', name: '청평', coord: [127.421, 37.736] },
+  { id: 'yangpyeong',kind: 'city', name: '양평', coord: [127.488, 37.492] },
+  { id: 'yeoju',     kind: 'city', name: '여주', coord: [127.637, 37.298] },
+  { id: 'pyeongchang', kind: 'city', name: '평창', coord: [128.390, 37.370] },
+  { id: 'yeongwol',  kind: 'city', name: '영월', coord: [128.462, 37.184] },
+  { id: 'danyang',   kind: 'city', name: '단양', coord: [128.366, 36.985] },
 
   // ── 적 집결지 ──
   { id: 'hwacheon',  kind: 'assembly', name: '화천', coord: [127.708, 38.106], meta: { note: '적 집결 포착' } },
@@ -21,6 +30,15 @@ export const terrainPoints: TerrainPoint[] = [
   { id: 'bongui',    kind: 'peak', name: '봉의산', coord: [127.731, 37.887], meta: { elevation: 301, note: '6/27 피탈' } },
   // 금병산: 춘천 신동면, 김유정역 북동편 (실측 보정)
   { id: 'geumbyeong',kind: 'peak', name: '금병산', coord: [127.740, 37.806], meta: { elevation: 652, note: '6/28 방어' } },
+  // 광역 주요 산 — 팬/줌 시 지형 인지용 (대략 위치·표고)
+  { id: 'daeryong',  kind: 'peak', name: '대룡산', coord: [127.792, 37.855], meta: { elevation: 899 } },
+  { id: 'gari',      kind: 'peak', name: '가리산', coord: [127.905, 37.905], meta: { elevation: 1051 } },
+  { id: 'odae',      kind: 'peak', name: '오대산', coord: [128.543, 37.792], meta: { elevation: 1565 } },
+  { id: 'gyebang',   kind: 'peak', name: '계방산', coord: [128.458, 37.732], meta: { elevation: 1577 } },
+  { id: 'chiak',     kind: 'peak', name: '치악산', coord: [128.055, 37.372], meta: { elevation: 1288 } },
+  { id: 'yongmun',   kind: 'peak', name: '용문산', coord: [127.553, 37.552], meta: { elevation: 1157 } },
+  { id: 'hwaak',     kind: 'peak', name: '화악산', coord: [127.505, 38.045], meta: { elevation: 1468 } },
+  { id: 'bukhan',    kind: 'peak', name: '북한산', coord: [126.988, 37.659], meta: { elevation: 836 } },
 
   // ── 다리 ──
   // 모진교: 현 춘천댐 부근 수몰 지점, 38선 이남 300m
@@ -43,6 +61,9 @@ export const terrainPoints: TerrainPoint[] = [
   // ── 고지 ──
   { id: 'hill558',   kind: 'hill', name: '558고지', coord: [127.938, 37.788], meta: { uncertain: true } },
   { id: 'hill402',   kind: 'hill', name: '402고지', coord: [127.912, 37.762], meta: { uncertain: true } },
+
+  // ── 하천 합류·요충 (광역) ──
+  { id: 'dumulmeori', kind: 'spot', name: '두물머리', coord: [127.329, 37.545], meta: { note: '남한강·북한강 합류 → 한강' } },
 ];
 
 /** 38선 (북위 38도) — 뷰를 가로지르는 위도선 */
@@ -122,6 +143,38 @@ export const terrainLines: TerrainLine[] = [
       [126.895, 37.560],
       [126.815, 37.585], // 행주 부근
       [126.720, 37.615],
+    ],
+  },
+  {
+    id: 'namhan-river',
+    kind: 'river',
+    name: '남한강',
+    approx: true,
+    coordinates: [
+      [128.462, 37.190], // 영월
+      [128.360, 36.995], // 단양
+      [128.080, 37.010],
+      [127.870, 37.035], // 충주 부근
+      [127.700, 37.150],
+      [127.610, 37.300], // 여주
+      [127.490, 37.490], // 양평
+      [127.355, 37.535], // 두물머리(합류)
+    ],
+  },
+  {
+    id: 'gyeongchun-road',
+    kind: 'road',
+    name: '경춘가도(서울–춘천)',
+    approx: true,
+    coordinates: [
+      [126.990, 37.575], // 서울
+      [127.090, 37.605],
+      [127.210, 37.640], // 금곡 부근
+      [127.335, 37.700], // 청평 부근
+      [127.470, 37.795],
+      [127.511, 37.831], // 가평
+      [127.630, 37.875],
+      [127.734, 37.885], // 춘천
     ],
   },
   {

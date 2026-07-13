@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { equipmentById } from '../../data/equipment';
 import { useBattleStore } from '../../store/useBattleStore';
@@ -79,6 +79,9 @@ export default function EquipmentCard() {
   const selectedEquipId = useBattleStore((s) => s.selectedEquipId);
   const selectEquip = useBattleStore((s) => s.selectEquip);
   const e = selectedEquipId ? equipmentById.get(selectedEquipId) : undefined;
+  // 실사 사진 로드 실패 시 측면 실루엣으로 폴백
+  const [photoOk, setPhotoOk] = useState(true);
+  useEffect(() => setPhotoOk(true), [selectedEquipId]);
 
   useEffect(() => {
     if (!selectedEquipId) return;
@@ -116,7 +119,17 @@ export default function EquipmentCard() {
         </div>
 
         <div className="equip-hero">
-          <Silhouette e={e} />
+          {e.photo && photoOk ? (
+            <img
+              className="equip-photo-img"
+              src={e.photo.src}
+              alt={`${e.name} 사진`}
+              loading="lazy"
+              onError={() => setPhotoOk(false)}
+            />
+          ) : (
+            <Silhouette e={e} />
+          )}
         </div>
 
         <div className="dossier-head" style={{ paddingTop: 12 }}>
@@ -141,6 +154,20 @@ export default function EquipmentCard() {
             전투에서
           </div>
           <p>{e.note}</p>
+          {e.photo && photoOk && (
+            <div className="img-credit">
+              사진 · {e.photo.credit} · {e.photo.license}
+              {e.photo.note ? ` · ${e.photo.note}` : ''}
+              {e.photo.sourceUrl && (
+                <>
+                  {' · '}
+                  <a href={e.photo.sourceUrl} target="_blank" rel="noreferrer">
+                    원본
+                  </a>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>,

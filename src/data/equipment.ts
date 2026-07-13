@@ -1,4 +1,5 @@
 import type { Faction } from '../types';
+import type { ImageCredit } from './media';
 
 export type EquipKind = 'spgun' | 'tank' | 'armored-car' | 'howitzer' | 'atgun' | 'mortar';
 
@@ -11,6 +12,8 @@ export interface Equipment {
   klass: string;           // 분류 (자주포·전차 …)
   specs: { label: string; value: string }[];
   note: string;
+  /** 실사 사진(공개도메인/자유 라이선스). 없으면 측면 실루엣으로 폴백 */
+  photo?: ImageCredit;
 }
 
 export const equipment: Equipment[] = [

@@ -1,4 +1,5 @@
 import type { Faction } from '../types';
+import type { ImageCredit } from './media';
 
 /**
  * 전투 관련 인물. 약력은 사료를 바탕으로 자기 문장으로 재서술한 사실 기록이다.
@@ -73,10 +74,12 @@ export const people: Person[] = [
 
 export const personById = new Map(people.map((p) => [p.id, p]));
 
-/** 부가 정보 — 한자 표기, 훈장·특진 등 (초상은 실사진이 아닌 도식) */
+/** 부가 정보 — 한자 표기, 훈장·특진, 실사 초상(있으면) */
 export interface PersonMeta {
   hanja?: string;
   medals?: string[];
+  /** 실사 초상(공개도메인/자유 라이선스). 없으면 도식 초상으로 폴백 */
+  photo?: ImageCredit;
 }
 
 export const personMeta: Record<string, PersonMeta> = {

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { personById, personMeta } from '../../data/people';
 import RankInsignia from './RankInsignia';
@@ -64,6 +64,9 @@ export default function PersonCard({
   onClose: () => void;
 }) {
   const p = personById.get(personId);
+  // 실사 초상 로드 실패(파일 미배치 등) 시 도식 초상으로 폴백
+  const [photoOk, setPhotoOk] = useState(true);
+  useEffect(() => setPhotoOk(true), [personId]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -85,6 +88,7 @@ export default function PersonCard({
   const meta = personMeta[p.id] ?? {};
   const kind = portraitKind(p.rankRole);
   const factionLabel = p.faction === 'ROK' ? '국군 · 제6사단' : '북한 · 제2군단';
+  const showPhoto = !!meta.photo && photoOk;
 
   return createPortal(
     <div className="person-backdrop" onClick={onClose}>
@@ -104,8 +108,23 @@ export default function PersonCard({
 
         <div className="dossier-head">
           <div className="dossier-photo">
-            <Portrait kind={kind} faction={p.faction} />
-            <span className="dossier-photo-tag">초상 도식</span>
+            {showPhoto ? (
+              <>
+                <img
+                  className="dossier-photo-img"
+                  src={meta.photo!.src}
+                  alt={`${p.name} 초상`}
+                  loading="lazy"
+                  onError={() => setPhotoOk(false)}
+                />
+                <span className="dossier-photo-tag">사진</span>
+              </>
+            ) : (
+              <>
+                <Portrait kind={kind} faction={p.faction} />
+                <span className="dossier-photo-tag">초상 도식</span>
+              </>
+            )}
           </div>
           <div className="dossier-id">
             <div className="dossier-faction">{factionLabel}</div>
@@ -136,6 +155,20 @@ export default function PersonCard({
         <div className="dossier-body">
           <div className="dossier-body-label">약력</div>
           <p>{p.bio}</p>
+          {showPhoto && (
+            <div className="img-credit">
+              초상 · {meta.photo!.credit} · {meta.photo!.license}
+              {meta.photo!.note ? ` · ${meta.photo!.note}` : ''}
+              {meta.photo!.sourceUrl && (
+                <>
+                  {' · '}
+                  <a href={meta.photo!.sourceUrl} target="_blank" rel="noreferrer">
+                    원본
+                  </a>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>,
