@@ -5,7 +5,7 @@ import type { LngLat } from '../types';
  * 기본 프레이밍은 춘천–홍천–인제 삼각지대(화천~홍천 남쪽).
  * 횡성·원주·제천·충주 방면 철수로는 화면 밖 — 팬/줌으로 따라간다.
  */
-const BBOX = {
+export const BBOX = {
   sw: [127.60, 37.58] as LngLat,
   ne: [128.25, 38.15] as LngLat,
 };

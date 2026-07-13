@@ -1,27 +1,9 @@
 import { memo, useMemo } from 'react';
 import type { GeoProjection } from 'd3-geo';
-import { project, lineToPath, lineToSmoothPath } from '../../lib/projection';
-import { closedSmoothPathFromPoints, type Pt } from '../../lib/morph';
+import { project, lineToPath, lineToSmoothPath, BBOX } from '../../lib/projection';
 import { terrainPoints, terrainLines, boundary38 } from '../../data/terrain';
-import { reliefMassifs } from '../../data/relief';
 import { useBattleStore } from '../../store/useBattleStore';
 import type { TerrainPoint } from '../../types';
-
-/** 산괴 폴리곤을 중심 방향으로 수축시켜 등고선 링 3단 생성 */
-function contourRings(projection: GeoProjection, coords: [number, number][]): string[] {
-  const pts: Pt[] = coords.map((c) => project(projection, c));
-  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
-  const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
-  return [1, 0.64, 0.34].map((s) =>
-    closedSmoothPathFromPoints(
-      pts.map(([x, y], i) => {
-        const wobble = 1 + 0.08 * Math.sin(i * 2.4 + s * 7);
-        const k = s * wobble;
-        return [cx + (x - cx) * k, cy + (y - cy) * k] as Pt;
-      }),
-    ),
-  );
-}
 
 function PointSymbol({ p }: { p: TerrainPoint }) {
   switch (p.kind) {
@@ -69,16 +51,20 @@ function TerrainLayer({
   detail?: boolean;
 }) {
   const showLabels = useBattleStore((s) => s.layers.terrain);
+  const theme = useBattleStore((s) => s.theme);
   const s = 1 / k; // 라벨·기호 역-스케일: 화면상 크기 고정
 
   /* 지오메트리는 projection에만 의존 — 줌(k) 변경 시 재계산하지 않도록 메모 */
   const geo = useMemo(() => {
     const rivers = terrainLines.filter((l) => l.kind === 'river');
     const roads = terrainLines.filter((l) => l.kind === 'road');
+    // 음영기복 이미지 배치: bbox 북서(좌상)~남동(우하)
+    const nw = project(projection, [BBOX.sw[0], BBOX.ne[1]]);
+    const se = project(projection, [BBOX.ne[0], BBOX.sw[1]]);
     return {
       rivers: rivers.map((r) => ({ id: r.id, name: r.name, d: lineToSmoothPath(projection, r.coordinates), coords: r.coordinates })),
       roads: roads.map((r) => ({ id: r.id, name: r.name, d: lineToSmoothPath(projection, r.coordinates), coords: r.coordinates })),
-      relief: reliefMassifs.map((m) => ({ id: m.id, it: m.intensity ?? 1, rings: contourRings(projection, m.coordinates) })),
+      relief: { x: nw[0], y: nw[1], w: se[0] - nw[0], h: se[1] - nw[1] },
       b38: lineToPath(projection, boundary38),
       b38a: project(projection, boundary38[0]),
       points: terrainPoints.map((p) => ({ p, xy: project(projection, p.coord) })),
@@ -87,23 +73,17 @@ function TerrainLayer({
 
   return (
     <g>
-      {/* 음영 기복 — 도식 산괴 등고선 (선 두께 고정) */}
-      {geo.relief.map((m) => (
-        <g key={m.id} aria-hidden="true">
-          <path d={m.rings[0]} fill="var(--ridge-shadow)" opacity={0.35 * m.it} stroke="none" />
-          {m.rings.map((d, i) => (
-            <path
-              key={i}
-              d={d}
-              fill="none"
-              stroke="var(--contour-bistre)"
-              strokeWidth={0.9}
-              vectorEffect="non-scaling-stroke"
-              opacity={(0.42 - i * 0.06) * m.it}
-            />
-          ))}
-        </g>
-      ))}
+      {/* 음영기복(hillshade) — 실제 지형 근사 셰이딩 */}
+      <image
+        href={theme === 'dark' ? '/relief-dark.png' : '/relief-light.png'}
+        x={geo.relief.x}
+        y={geo.relief.y}
+        width={geo.relief.w}
+        height={geo.relief.h}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        style={{ pointerEvents: 'none' }}
+      />
 
       {/* 강 */}
       {geo.rivers.map((r) => (
