@@ -83,14 +83,60 @@ export interface PersonMeta {
 }
 
 export const personMeta: Record<string, PersonMeta> = {
-  'sim-il': { hanja: '沈鎰', medals: ['태극무공훈장'] },
-  'kim-jongo': { hanja: '金鍾五', medals: ['태극무공훈장'] },
+  'sim-il': {
+    hanja: '沈鎰',
+    medals: ['태극무공훈장'],
+    photo: {
+      src: 'https://upload.wikimedia.org/wikipedia/commons/b/b7/Sim_Il.jpg',
+      credit: '중앙일보 / Wikimedia Commons',
+      license: 'Public Domain (KR)',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:Sim_Il.jpg',
+      note: '1951년 이전',
+    },
+  },
+  'kim-jongo': {
+    hanja: '金鍾五',
+    medals: ['태극무공훈장'],
+    photo: {
+      src: 'https://upload.wikimedia.org/wikipedia/commons/5/5e/General_Kim_Jong-oh.jpg',
+      credit: '육군사관학교 박물관 / Wikimedia Commons',
+      license: 'Public Domain (KR)',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:General_Kim_Jong-oh.jpg',
+      note: '1954년',
+    },
+  },
   'im-butaek': { hanja: '林富澤' },
-  'kim-yongbae': { hanja: '金容培' },
+  'kim-yongbae': {
+    hanja: '金容培',
+    photo: {
+      src: 'https://upload.wikimedia.org/wikipedia/commons/5/52/%EA%B9%80%EC%9A%A9%EB%B0%B0_1963.jpg',
+      credit: '조선일보 / Wikimedia Commons',
+      license: 'Public Domain (KR)',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:%EA%B9%80%EC%9A%A9%EB%B0%B0_1963.jpg',
+      note: '1963년',
+    },
+  },
   'jeong-ogyeong': { hanja: '鄭五景' },
   'ham-byeongseon': { hanja: '咸炳善' },
-  'min-byeonggwon': { hanja: '閔丙權' },
-  'jo-daljin': { hanja: '趙達鎭', medals: ['2계급 특진', '무공훈장'] },
+  'min-byeonggwon': {
+    hanja: '閔丙權',
+    photo: {
+      src: 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Minbyungkwon.jpeg',
+      credit: 'Huien2478 / Wikimedia Commons',
+      license: 'CC BY-SA 4.0',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:Minbyungkwon.jpeg',
+    },
+  },
+  'jo-daljin': {
+    hanja: '趙達鎭',
+    medals: ['2계급 특진', '무공훈장'],
+    photo: {
+      src: 'https://upload.wikimedia.org/wikipedia/commons/a/af/%EC%A1%B0%EB%8B%AC%EC%A7%84.png',
+      credit: '노리쇠후퇴고정 / Wikimedia Commons',
+      license: 'CC BY-SA 4.0',
+      sourceUrl: 'https://commons.wikimedia.org/wiki/File:%EC%A1%B0%EB%8B%AC%EC%A7%84.png',
+    },
+  },
 };
 
 /** 사건별 관련 인물 */
