@@ -5,8 +5,7 @@ import 'd3-transition';
 import type { GeoProjection } from 'd3-geo';
 import { createProjection, project } from '../../lib/projection';
 import { prefersReducedMotion } from '../../lib/morph';
-import { eventById } from '../../data/events';
-import { useBattleStore, briefScript } from '../../store/useBattleStore';
+import { useBattleStore } from '../../store/useBattleStore';
 import TerrainLayer from './TerrainLayer';
 import FrontLineLayer from './FrontLineLayer';
 import ArrowLayer, { ArrowheadDefs } from './ArrowLayer';
@@ -153,6 +152,7 @@ export default function MapCanvas() {
   const transformRef = useRef(transform);
   transformRef.current = transform;
 
+  const battle = useBattleStore((s) => s.battle);
   const selectedEventId = useBattleStore((s) => s.selectedEventId);
   const selectEvent = useBattleStore((s) => s.selectEvent);
   const briefIndex = useBattleStore((s) => s.briefIndex);
@@ -195,8 +195,8 @@ export default function MapCanvas() {
 
   /* 사건 선택 시 해당 지점으로 카메라 이동 */
   useEffect(() => {
-    if (!selectedEventId || !projection || !zoomRef.current || !svgRef.current) return;
-    const ev = eventById.get(selectedEventId);
+    if (!selectedEventId || !projection || !zoomRef.current || !svgRef.current || !battle) return;
+    const ev = battle.eventById.get(selectedEventId);
     if (!ev) return;
     const [x, y] = project(projection, ev.coord);
     const k = Math.max(transformRef.current.k, 1.6);
@@ -209,19 +209,19 @@ export default function MapCanvas() {
     } else {
       svg.transition().duration(650).call(zoomRef.current.transform, t);
     }
-  }, [selectedEventId, projection, size]);
+  }, [selectedEventId, projection, size, battle]);
 
   /* 브리핑 날짜 인트로 스텝: 전체 뷰로 카메라 리셋 */
   useEffect(() => {
-    if (briefIndex === null || !zoomRef.current || !svgRef.current) return;
-    if (briefScript[briefIndex].eventId !== null) return; // 사건 스텝은 위 효과가 처리
+    if (briefIndex === null || !zoomRef.current || !svgRef.current || !battle) return;
+    if (battle.briefScript[briefIndex].eventId !== null) return; // 사건 스텝은 위 효과가 처리
     const svg = select(svgRef.current);
     if (prefersReducedMotion()) {
       svg.call(zoomRef.current.transform, zoomIdentity);
     } else {
       svg.transition().duration(850).call(zoomRef.current.transform, zoomIdentity);
     }
-  }, [briefIndex]);
+  }, [briefIndex, battle]);
 
   const scale = projection ? computeScale(projection, transform) : null;
 

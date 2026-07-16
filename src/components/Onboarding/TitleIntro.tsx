@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { prefersReducedMotion } from '../../lib/morph';
+import { getStored, setStored } from '../../lib/storage';
 
-const KEY = 'chuncheon1950-introseen';
+// 인트로는 전투별 — 전투 진입 첫 1회 (Stage 2에서 전투 id 파라미터화)
+const KEY = 'introseen:chuncheon';
 
 /** 진입 타이틀 인트로 — 최초 1회, 스킵 가능, 축소모션 존중 */
 export default function TitleIntro() {
@@ -9,13 +11,7 @@ export default function TitleIntro() {
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    let seen = false;
-    try {
-      seen = !!window.localStorage.getItem(KEY);
-    } catch {
-      seen = false;
-    }
-    if (seen || prefersReducedMotion()) return;
+    if (getStored(KEY) || prefersReducedMotion()) return;
     setShow(true);
     const t = setTimeout(() => dismiss(), 3600);
     return () => clearTimeout(t);
@@ -23,11 +19,7 @@ export default function TitleIntro() {
   }, []);
 
   const dismiss = () => {
-    try {
-      window.localStorage.setItem(KEY, '1');
-    } catch {
-      /* noop */
-    }
+    setStored(KEY, '1');
     setLeaving(true);
     setTimeout(() => setShow(false), 650);
   };

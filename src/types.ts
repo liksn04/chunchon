@@ -1,5 +1,11 @@
+import type { UnitPosition } from './data/battles/chuncheon/unitPositions';
+import type { PlanArrow } from './data/battles/chuncheon/plans';
+import type { CoordNote } from './data/battles/chuncheon/geo';
+import type { Footnote } from './data/battles/chuncheon/footnotes';
+
 export type Faction = 'ROK' | 'NK';
-export type AxisId = 'chuncheon' | 'inje-hongcheon' | 'both';
+/** 전투 축선 식별자 — 전투마다 다르므로 일반화된 문자열 */
+export type AxisId = string;
 export type Outcome = 'rok' | 'nk' | 'mixed' | 'none';
 
 /** d3.geo 순서: [경도, 위도] */
@@ -83,4 +89,47 @@ export interface TerrainLine {
   name: string;
   coordinates: LngLat[];
   approx?: boolean;                    // 도식화된 근사 linework
+}
+
+/** 지리 범위 (남서·북동 모서리) */
+export interface Bbox {
+  sw: LngLat;
+  ne: LngLat;
+}
+
+/** 6.25 전쟁 국면 */
+export type WarPhase = 'invasion' | 'naktong' | 'counter' | 'ccf' | 'stalemate';
+
+/** 전투 메타 — 목록·자산·스토리지 키·프레이밍의 단일 출처 */
+export interface BattleMeta {
+  id: string;                                  // URL slug·asset·스토리지 키
+  name: { ko: string; en: string };
+  phase: WarPhase;
+  dateRange: { start: string; end: string };
+  marker: LngLat;                              // 목록 지도 마커
+  summary: string;                             // 목록 카드 1~2문장
+  status: 'available' | 'planned';
+  bbox?: Bbox;                                 // available이면 필수 (구 projection.BBOX)
+  reliefBbox?: Bbox;
+  relief?: { light: string; dark: string };    // '/relief/<id>-light.png'
+  cartouche?: { title: string; en: string; sub: string; stamp?: string };
+  intro?: { headline: string; body: string };  // TitleIntro 카피 데이터화
+}
+
+/** 한 전투의 완결된 데이터 묶음 (dynamic import 단위) */
+export interface BattleData {
+  meta: BattleMeta;
+  days: DayPhase[];
+  events: BattleEvent[];
+  movements: MovementArrow[];
+  frontLines: FrontLine[];
+  units: MilitaryUnit[];
+  unitPositionsByDate: Record<string, UnitPosition[]>;
+  terrainPoints: TerrainPoint[];
+  terrainLines: TerrainLine[];
+  plans?: { arrows: PlanArrow[]; failedFrom: string; note: string };  // 춘천 전용 → optional
+  coordNotes: Record<string, CoordNote>;
+  footnotesByEvent: Record<string, Footnote[]>;
+  eventSources: Record<string, string[]>;      // 공용 sources 카탈로그 id 참조
+  eventPeople: Record<string, string[]>;        // 공용 people 카탈로그 id 참조
 }

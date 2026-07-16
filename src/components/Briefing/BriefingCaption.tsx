@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useBattleStore, briefScript } from '../../store/useBattleStore';
+import { useBattleStore } from '../../store/useBattleStore';
 import { useT } from '../../i18n';
-import { eventById } from '../../data/events';
-import { dayByDate } from '../../data/days';
 import { prefersReducedMotion } from '../../lib/morph';
 
 function fmtDate(date: string, time?: string) {
@@ -14,13 +12,14 @@ function fmtDate(date: string, time?: string) {
 /** 브리핑 중 지도 하단에 뜨는 군용 전문(電文) 자막 — 타자기 효과 */
 export default function BriefingCaption() {
   const t = useT();
+  const battle = useBattleStore((s) => s.battle);
   const briefIndex = useBattleStore((s) => s.briefIndex);
   const stop = useBattleStore((s) => s.stop);
   const setBriefStep = useBattleStore((s) => s.setBriefStep);
 
-  const step = briefIndex !== null ? briefScript[briefIndex] : null;
-  const ev = step?.eventId ? eventById.get(step.eventId) : null;
-  const day = step ? dayByDate.get(step.date) : null;
+  const step = briefIndex !== null && battle ? battle.briefScript[briefIndex] : null;
+  const ev = step?.eventId && battle ? battle.eventById.get(step.eventId) : null;
+  const day = step && battle ? battle.dayByDate.get(step.date) : null;
 
   const meta = step
     ? ev
@@ -50,7 +49,7 @@ export default function BriefingCaption() {
     return () => clearInterval(t);
   }, [body]);
 
-  if (briefIndex === null || !step) return null;
+  if (briefIndex === null || !step || !battle) return null;
 
   return (
     <div className="brief-caption" role="status" aria-live="polite">
@@ -77,12 +76,12 @@ export default function BriefingCaption() {
           type="button"
           aria-label="다음 장면"
           onClick={() => setBriefStep(briefIndex + 1)}
-          disabled={briefIndex >= briefScript.length - 1}
+          disabled={briefIndex >= battle.briefScript.length - 1}
         >
           ⏭
         </button>
         <span className="brief-progress">
-          {briefIndex + 1}/{briefScript.length}
+          {briefIndex + 1}/{battle.briefScript.length}
         </span>
       </div>
     </div>
