@@ -1,9 +1,8 @@
 import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project } from '../../lib/projection';
-import { unitPositionsByDate } from '../../data/unitPositions';
-import { unitById } from '../../data/units';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import type { MilitaryUnit } from '../../types';
 
 /** 제대 표식: 대대 Ⅱ · 연대 Ⅲ · 사단 XX · 군단 XXX */
@@ -50,6 +49,7 @@ function UnitLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numbe
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const selectUnit = useBattleStore((s) => s.selectUnit);
   const visible = useBattleStore((s) => s.layers.units);
+  const { unitPositionsByDate, unitById } = useBattle();
   if (!visible || selectedDay === 'all') return null;
 
   const positions = unitPositionsByDate[selectedDay];

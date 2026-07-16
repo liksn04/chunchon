@@ -12,6 +12,21 @@ export const strings: Record<string, { ko: string; en: string }> = {
   'app.toDark': { ko: '◐ 야간', en: '◐ Night' },
   'app.toLight': { ko: '◑ 주간', en: '◑ Day' },
   'app.lang': { ko: 'EN', en: '한국어' },
+  'app.title': { ko: '6·25 전쟁 전투 상황도', en: 'Korean War Battle Atlas' },
+
+  'index.subtitle': {
+    ko: '주요 전투를 골라 상황도를 여세요',
+    en: 'Choose a battle to open its situation map',
+  },
+  'index.available': { ko: '수록 전투', en: 'Available' },
+  'index.planned': { ko: '준비 중', en: 'In preparation' },
+  'index.open': { ko: '상황도 열기 ›', en: 'Open map ›' },
+  'index.back': { ko: '‹ 전투 목록', en: '‹ All battles' },
+  'phase.invasion': { ko: '남침기', en: 'Invasion' },
+  'phase.naktong': { ko: '낙동강 방어', en: 'Naktong defense' },
+  'phase.counter': { ko: '반격·북진', en: 'Counteroffensive' },
+  'phase.ccf': { ko: '중공군 개입', en: 'Chinese intervention' },
+  'phase.stalemate': { ko: '고지전', en: 'Stalemate' },
 
   'rail.brief': { ko: '▶ 브리핑', en: '▶ Briefing' },
   'rail.stop': { ko: '⏸ 정지', en: '⏸ Stop' },

@@ -6,7 +6,7 @@ import { movements } from './movements';
 import { frontLines } from './frontlines';
 import { units } from './units';
 import { unitPositionsByDate } from './unitPositions';
-import { terrainPoints, terrainLines } from './terrain';
+import { terrainPoints, terrainLines, boundary38 } from './terrain';
 import { planArrows, PLAN_FAILED_FROM, planNote } from './plans';
 import { eventCoordNotes } from './geo';
 import { footnotesByEvent } from './footnotes';
@@ -23,6 +23,7 @@ export const battle: BattleData = {
   unitPositionsByDate,
   terrainPoints,
   terrainLines,
+  boundary38,
   plans: { arrows: planArrows, failedFrom: PLAN_FAILED_FROM, note: planNote },
   coordNotes: eventCoordNotes,
   footnotesByEvent,

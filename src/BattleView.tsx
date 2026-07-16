@@ -9,9 +9,10 @@ import EquipmentCard from './components/Panel/EquipmentCard';
 import Coachmarks from './components/Onboarding/Coachmarks';
 import TitleIntro from './components/Onboarding/TitleIntro';
 import { useBattleStore } from './store/useBattleStore';
-import { useT } from './i18n';
+import { battleById } from './battles/registry';
+import { navigate } from './router';
 
-/** 날짜를 한 칸 이동 ('전체' ↔ 6/25 … 7/1) */
+/** 날짜를 한 칸 이동 ('전체' ↔ 각 날짜) */
 function stepDay(dir: 1 | -1) {
   const st = useBattleStore.getState();
   if (st.briefIndex !== null || !st.battle) return;
@@ -21,41 +22,41 @@ function stepDay(dir: 1 | -1) {
   st.setDay(order[next]);
 }
 
-const THEME_SURFACE = { light: '#e4dec9', dark: '#131a24' } as const;
-
-/** '1950-06-27' ↔ '0627' */
+/** '1950-06-27' → '0627' (월-일) */
 const toParam = (date: string) => date.slice(5, 7) + date.slice(8, 10);
-const fromParam = (p: string) => `1950-${p.slice(0, 2)}-${p.slice(2)}`;
 
-export default function App() {
+/** 딥링크 day 파라미터('MMDD' 또는 'YYYYMMDD')를 활성 전투의 실제 날짜로 해석 */
+function resolveDayParam(param: string, dates: string[]): string | null {
+  if (/^\d{8}$/.test(param)) {
+    return dates.find((d) => d.replaceAll('-', '') === param) ?? null;
+  }
+  if (/^\d{4}$/.test(param)) {
+    return dates.find((d) => toParam(d) === param) ?? null;
+  }
+  return null;
+}
+
+export default function BattleView({ battleId }: { battleId: string }) {
   const battle = useBattleStore((s) => s.battle);
   const loadBattle = useBattleStore((s) => s.loadBattle);
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const selectedEventId = useBattleStore((s) => s.selectedEventId);
   const briefIndex = useBattleStore((s) => s.briefIndex);
   const advanceBrief = useBattleStore((s) => s.advanceBrief);
-  const theme = useBattleStore((s) => s.theme);
-  const toggleTheme = useBattleStore((s) => s.toggleTheme);
-  const lang = useBattleStore((s) => s.lang);
-  const toggleLang = useBattleStore((s) => s.toggleLang);
-  const t = useT();
 
-  /* 최초 진입: 춘천 전투 로드 (Stage 2에서 라우팅으로 대체) */
-  useEffect(() => {
-    loadBattle('chuncheon');
-  }, [loadBattle]);
+  // 알 수 없거나 아직 데이터 없는(planned) 전투 → 목록으로
+  const meta = battleById.get(battleId);
+  const unavailable = !meta || meta.status === 'planned';
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    // iOS Safari 상단바 색을 지도 표면에 맞춤
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', THEME_SURFACE[theme]);
-  }, [theme]);
+    if (unavailable) {
+      navigate('/');
+      return;
+    }
+    loadBattle(battleId);
+  }, [battleId, loadBattle, unavailable]);
 
-  useEffect(() => {
-    document.documentElement.lang = lang;
-  }, [lang]);
+  const ready = !!battle && battle.meta.id === battleId;
 
   /* 브리핑 진행 타이머: 날짜 인트로 3초, 사건 5.6초 */
   useEffect(() => {
@@ -68,18 +69,22 @@ export default function App() {
   /* 딥링크: 전투 로드 후 1회 ?day=0627&event=garaemok 복원 */
   const restoredRef = useRef(false);
   useEffect(() => {
-    if (!battle || restoredRef.current) return;
+    if (!ready || !battle || restoredRef.current) return;
     restoredRef.current = true;
     const p = new URLSearchParams(window.location.search);
     const day = p.get('day');
     const ev = p.get('event');
     const patch: { selectedDay?: string; selectedEventId?: string } = {};
-    if (day && /^\d{4}$/.test(day) && battle.dayByDate.has(fromParam(day))) {
-      patch.selectedDay = fromParam(day);
+    if (day) {
+      const resolved = resolveDayParam(
+        day,
+        battle.days.map((d) => d.date),
+      );
+      if (resolved) patch.selectedDay = resolved;
     }
     if (ev && battle.eventById.has(ev)) patch.selectedEventId = ev;
     if (Object.keys(patch).length) useBattleStore.setState(patch);
-  }, [battle]);
+  }, [ready, battle]);
 
   /* 딥링크: 상태 → URL 동기화 (복원 완료 후에만) */
   useEffect(() => {
@@ -88,8 +93,8 @@ export default function App() {
     if (selectedDay !== 'all') p.set('day', toParam(selectedDay));
     if (selectedEventId) p.set('event', selectedEventId);
     const q = p.toString();
-    window.history.replaceState(null, '', q ? `?${q}` : window.location.pathname);
-  }, [selectedDay, selectedEventId, battle]);
+    window.history.replaceState(null, '', `/b/${battleId}${q ? `?${q}` : ''}`);
+  }, [selectedDay, selectedEventId, battleId, battle]);
 
   /* 키보드: ←/→ 날짜 이동 · Esc 상세 닫기 · Space 브리핑 토글 */
   useEffect(() => {
@@ -125,36 +130,13 @@ export default function App() {
     if (Math.abs(dx) > 55 && Math.abs(dy) < 45) stepDay(dx < 0 ? 1 : -1);
   };
 
-  // 전투 번들 로드 전에는 지도 표면 색만 채운 채 대기 (라우팅은 Stage 2)
-  if (!battle) return <div className="app app--loading" aria-busy="true" />;
+  // 전투 번들 로드 전에는 지도 표면 색만 채운 채 대기
+  if (unavailable || !ready) {
+    return <div className="app-body app-body--loading" aria-busy="true" />;
+  }
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1 className="app-title">
-          <span className="title-year">1950</span>춘천–홍천 전투 상황도
-        </h1>
-        <span className="app-subtitle">{t('app.subtitle')}</span>
-        <div className="header-toggles">
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={toggleLang}
-            aria-label={lang === 'ko' ? 'Switch to English' : '한국어로 전환'}
-          >
-            {t('app.lang')}
-          </button>
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={toggleTheme}
-            aria-label={theme === 'light' ? '야간(지휘소 콘솔) 모드로 전환' : '주간 모드로 전환'}
-          >
-            {theme === 'light' ? t('app.toDark') : t('app.toLight')}
-          </button>
-        </div>
-      </header>
-
+    <>
       <main className="app-main">
         <div className="map-area">
           <MapCanvas />
@@ -180,6 +162,6 @@ export default function App() {
       <EquipmentCard />
       <TitleIntro />
       <Coachmarks />
-    </div>
+    </>
   );
 }

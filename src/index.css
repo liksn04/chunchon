@@ -112,6 +112,13 @@ button {
   grid-template-columns: 1fr 380px;
 }
 
+/* 전투 번들 로드 대기 — 헤더 아래 남는 영역을 지도 표면색으로 채움 */
+.app-body--loading {
+  flex: 1;
+  min-height: 0;
+  background: var(--map-buff);
+}
+
 .map-area {
   position: relative;
   min-width: 0;

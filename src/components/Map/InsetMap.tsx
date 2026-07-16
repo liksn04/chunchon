@@ -1,8 +1,9 @@
 import type { GeoProjection } from 'd3-geo';
 import type { ZoomTransform } from 'd3-zoom';
-import { koreaOutline, KOREA_BBOX, seoul, chuncheon } from '../../data/korea';
+import { koreaOutline, KOREA_BBOX, seoul } from '../../data/shared/korea';
 import { closedSmoothPathFromPoints, type Pt } from '../../lib/morph';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import { useT } from '../../i18n';
 import type { LngLat } from '../../types';
 
@@ -31,8 +32,10 @@ export default function InsetMap({
   h: number;
 }) {
   const t = useT();
+  const meta = useBattle().meta;
   const selectedDay = useBattleStore((s) => s.selectedDay);
-  const seoulFallen = selectedDay === 'all' || selectedDay >= '1950-06-28';
+  const seoulFallDate = meta.inset?.seoulFallDate;
+  const seoulFallen = !!seoulFallDate && (selectedDay === 'all' || selectedDay >= seoulFallDate);
 
   const silhouette = closedSmoothPathFromPoints(koreaOutline.map(toInset));
 
@@ -60,7 +63,7 @@ export default function InsetMap({
   const lat38a = toInset([KOREA_BBOX.lngMin, 38]);
   const lat38b = toInset([KOREA_BBOX.lngMax, 38]);
   const [seoulX, seoulY] = toInset(seoul);
-  const [ccX, ccY] = toInset(chuncheon);
+  const [ccX, ccY] = toInset(meta.marker);
 
   return (
     <div className="inset-map" aria-hidden="true">
@@ -88,11 +91,13 @@ export default function InsetMap({
         <text x={seoulX - 4} y={seoulY + 2.5} textAnchor="end" className="inset-label">
           {t('inset.seoul')}{seoulFallen ? ' ✕' : ''}
         </text>
-        {/* 춘천 */}
+        {/* 전투 지점 */}
         <circle cx={ccX} cy={ccY} r={2.4} fill="var(--rok)" stroke="var(--map-buff)" strokeWidth={0.8} />
-        <text x={ccX + 4} y={ccY + 2.5} className="inset-label inset-label--rok">
-          {t('inset.chuncheon')}
-        </text>
+        {meta.inset?.label && (
+          <text x={ccX + 4} y={ccY + 2.5} className="inset-label inset-label--rok">
+            {meta.inset.label}
+          </text>
+        )}
       </svg>
     </div>
   );

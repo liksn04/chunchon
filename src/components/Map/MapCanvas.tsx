@@ -6,6 +6,7 @@ import type { GeoProjection } from 'd3-geo';
 import { createProjection, project } from '../../lib/projection';
 import { prefersReducedMotion } from '../../lib/morph';
 import { useBattleStore } from '../../store/useBattleStore';
+import type { Bbox } from '../../types';
 import TerrainLayer from './TerrainLayer';
 import FrontLineLayer from './FrontLineLayer';
 import ArrowLayer, { ArrowheadDefs } from './ArrowLayer';
@@ -25,34 +26,48 @@ function fmtDeg(v: number): string {
   return `${d}°${String(m).padStart(2, '0')}′`;
 }
 
+/** 눈금 루프 여유 — bbox(또는 relief) 가장자리 바깥으로 0.1° 눈금을 넉넉히 잡는다 */
+const TICK_PAD = 0.3;
+
 /** 도엽 테두리 + 팬/줌을 따라가는 위경도 눈금 */
 function GraticuleFrame({
   projection,
   transform,
   w,
   h,
+  bbox,
+  tickBox,
 }: {
   projection: GeoProjection;
   transform: ZoomTransform;
   w: number;
   h: number;
+  bbox: Bbox;      // 프레이밍 bbox — 눈금 참조 중심
+  tickBox: Bbox;   // 눈금 루프 범위 (팬 가능 영역: relief ?? bbox)
 }) {
-  const xOf = (lng: number) => transform.applyX(project(projection, [lng, 37.8])[0]);
-  const yOf = (lat: number) => transform.applyY(project(projection, [127.9, lat])[1]);
+  const cLng = (bbox.sw[0] + bbox.ne[0]) / 2;
+  const cLat = (bbox.sw[1] + bbox.ne[1]) / 2;
+  // Mercator: x는 경도에만, y는 위도에만 의존 — 참조 위/경도는 픽셀에 무관
+  const xOf = (lng: number) => transform.applyX(project(projection, [lng, cLat])[0]);
+  const yOf = (lat: number) => transform.applyY(project(projection, [cLng, lat])[1]);
 
-  const pxPerTickX = Math.abs(xOf(127.8) - xOf(127.7));
+  const pxPerTickX = Math.abs(xOf(cLng + 0.05) - xOf(cLng - 0.05));
   const labelEveryX = pxPerTickX >= 60 ? 1 : 2;
-  const pxPerTickY = Math.abs(yOf(37.9) - yOf(37.8));
+  const pxPerTickY = Math.abs(yOf(cLat + 0.05) - yOf(cLat - 0.05));
   const labelEveryY = pxPerTickY >= 44 ? 1 : 2;
 
   const lngTicks: { x: number; lng: number }[] = [];
-  for (let i = 1265; i <= 1290; i++) {
+  const lngLo = Math.floor((tickBox.sw[0] - TICK_PAD) * 10);
+  const lngHi = Math.ceil((tickBox.ne[0] + TICK_PAD) * 10);
+  for (let i = lngLo; i <= lngHi; i++) {
     const lng = i / 10;
     const x = xOf(lng);
     if (x > INSET + 34 && x < w - INSET - 34) lngTicks.push({ x, lng });
   }
   const latTicks: { y: number; lat: number }[] = [];
-  for (let i = 365; i <= 386; i++) {
+  const latLo = Math.floor((tickBox.sw[1] - TICK_PAD) * 10);
+  const latHi = Math.ceil((tickBox.ne[1] + TICK_PAD) * 10);
+  for (let i = latLo; i <= latHi; i++) {
     const lat = i / 10;
     const y = yOf(lat);
     if (y > INSET + 24 && y < h - INSET - 24) latTicks.push({ y, lat });
@@ -127,11 +142,16 @@ function Compass({ x, y }: { x: number; y: number }) {
 }
 
 /** 현재 줌 배율에 맞는 축척바 값 계산 */
-function computeScale(projection: GeoProjection, transform: ZoomTransform) {
-  const xa = transform.applyX(project(projection, [127.8, 37.85])[0]);
-  const xb = transform.applyX(project(projection, [127.9, 37.85])[0]);
+function computeScale(
+  projection: GeoProjection,
+  transform: ZoomTransform,
+  cLng: number,
+  cLat: number,
+) {
+  const xa = transform.applyX(project(projection, [cLng - 0.05, cLat])[0]);
+  const xb = transform.applyX(project(projection, [cLng + 0.05, cLat])[0]);
   const pxPerDeg = Math.abs(xb - xa) * 10;
-  const kmPerDeg = 111.32 * Math.cos((37.85 * Math.PI) / 180);
+  const kmPerDeg = 111.32 * Math.cos((cLat * Math.PI) / 180);
   const kmPerPx = kmPerDeg / pxPerDeg;
   const target = 88;
   const km = [1, 2, 5, 10, 20, 50].reduce(
@@ -156,6 +176,9 @@ export default function MapCanvas() {
   const selectedEventId = useBattleStore((s) => s.selectedEventId);
   const selectEvent = useBattleStore((s) => s.selectEvent);
   const briefIndex = useBattleStore((s) => s.briefIndex);
+  const meta = battle?.meta ?? null;
+  const bbox = meta?.bbox ?? null;
+  const reliefBbox = meta?.reliefBbox ?? null;
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -169,29 +192,38 @@ export default function MapCanvas() {
   }, []);
 
   const projection = useMemo(
-    () => (size.w > 0 && size.h > 0 ? createProjection(size.w, size.h) : null),
-    [size],
+    () => (size.w > 0 && size.h > 0 && bbox ? createProjection(size.w, size.h, bbox) : null),
+    [size, bbox],
   );
 
   useEffect(() => {
     const svgEl = svgRef.current;
-    if (!svgEl || !size.w) return;
+    if (!svgEl || !size.w || !projection) return;
     const svg = select(svgEl);
+    // 팬 범위: relief 좌표 투영 범위(확장 지형이 끊기지 않는 영역), 없으면 기본 여백
+    const translateExtent: [[number, number], [number, number]] = reliefBbox
+      ? (() => {
+          const nw = project(projection, [reliefBbox.sw[0], reliefBbox.ne[1]]);
+          const se = project(projection, [reliefBbox.ne[0], reliefBbox.sw[1]]);
+          return [
+            [nw[0], nw[1]],
+            [se[0], se[1]],
+          ];
+        })()
+      : [
+          [-size.w, -size.h],
+          [size.w * 2, size.h * 2],
+        ];
     const z = zoom<SVGSVGElement, unknown>()
       .scaleExtent([MIN_ZOOM, MAX_ZOOM])
-      .translateExtent([
-        // 서쪽(서울)·남쪽(철수로: 횡성·원주·제천·충주)·동쪽(설악)까지
-        // 넓게 팬 가능하게 — 확장 릴리프 지형이 끊기지 않는 범위
-        [-size.w * 1.5, -size.h * 0.5],
-        [size.w * 1.7, size.h * 2.9],
-      ])
+      .translateExtent(translateExtent)
       .on('zoom', (e) => setTransform(e.transform));
     svg.call(z);
     zoomRef.current = z;
     return () => {
       svg.on('.zoom', null);
     };
-  }, [size]);
+  }, [size, projection, reliefBbox]);
 
   /* 사건 선택 시 해당 지점으로 카메라 이동 */
   useEffect(() => {
@@ -223,7 +255,13 @@ export default function MapCanvas() {
     }
   }, [briefIndex, battle]);
 
-  const scale = projection ? computeScale(projection, transform) : null;
+  const cLng = bbox ? (bbox.sw[0] + bbox.ne[0]) / 2 : 0;
+  const cLat = bbox ? (bbox.sw[1] + bbox.ne[1]) / 2 : 0;
+  const scale = projection ? computeScale(projection, transform, cLng, cLat) : null;
+
+  if (!projection || !bbox || !meta) {
+    return <div ref={wrapRef} className="map-canvas-wrap" />;
+  }
 
   return (
     <div ref={wrapRef} className="map-canvas-wrap">
@@ -233,7 +271,7 @@ export default function MapCanvas() {
           width={size.w}
           height={size.h}
           role="application"
-          aria-label="춘천–홍천 전투 상황도. 마커를 선택하면 사건 상세가 표시됩니다."
+          aria-label={`${meta.name.ko} 상황도. 마커를 선택하면 사건 상세가 표시됩니다.`}
           onClick={() => selectEvent(null)}
         >
           <defs>
@@ -263,7 +301,14 @@ export default function MapCanvas() {
           </g>
 
           {/* 화면 고정 도엽 요소 */}
-          <GraticuleFrame projection={projection} transform={transform} w={size.w} h={size.h} />
+          <GraticuleFrame
+            projection={projection}
+            transform={transform}
+            w={size.w}
+            h={size.h}
+            bbox={bbox}
+            tickBox={reliefBbox ?? bbox}
+          />
           <Compass x={size.w - INSET - 26} y={size.h - INSET - 34} />
         </svg>
       )}
@@ -274,13 +319,19 @@ export default function MapCanvas() {
       {/* 카투시 — 도엽명·축척 */}
       {scale && (
         <div className="cartouche" aria-hidden="true">
-          <div className="cartouche-title">
-            춘천–홍천 <span>CHUNCHEON — HONGCHEON</span>
-          </div>
-          <div className="cartouche-sub">
-            군 작전상황도(도식) · 1950. 6.
-            <span className="cartouche-stamp">사본 № 3</span>
-          </div>
+          {meta.cartouche && (
+            <>
+              <div className="cartouche-title">
+                {meta.cartouche.title} <span>{meta.cartouche.en}</span>
+              </div>
+              <div className="cartouche-sub">
+                {meta.cartouche.sub}
+                {meta.cartouche.stamp && (
+                  <span className="cartouche-stamp">{meta.cartouche.stamp}</span>
+                )}
+              </div>
+            </>
+          )}
           <svg width={scale.px + 10} height={19} className="scalebar">
             {[0, 1, 2, 3].map((i) => (
               <rect

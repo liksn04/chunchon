@@ -1,13 +1,13 @@
-import { days, dayByDate } from '../../data/days';
-import { planNote } from '../../data/plans';
-import { sourceById } from '../../data/sources';
+import { sourceById } from '../../data/shared/sources';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import { useT } from '../../i18n';
 import StatBar from './StatBar';
 import AdvanceChart from './AdvanceChart';
 
 export default function OverviewPanel() {
   const t = useT();
+  const { days, dayByDate, plans } = useBattle();
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const day = selectedDay === 'all' ? null : dayByDate.get(selectedDay);
   const dayIndex = day ? days.indexOf(day) : -1;
@@ -75,9 +75,11 @@ export default function OverviewPanel() {
           반격의 발판. 패전 책임으로 북한 2군단장 김광협, 2사단장 리청송,
           12사단장 전우가 해임됐다.
         </p>
-        <p className="panel-body panel-body--note" style={{ marginTop: 8 }}>
-          {planNote}
-        </p>
+        {plans && (
+          <p className="panel-body panel-body--note" style={{ marginTop: 8 }}>
+            {plans.note}
+          </p>
+        )}
       </div>
 
       <div className="panel-section">

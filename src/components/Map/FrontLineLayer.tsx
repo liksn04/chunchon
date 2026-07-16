@@ -9,9 +9,8 @@ import {
   prefersReducedMotion,
   type Pt,
 } from '../../lib/morph';
-import { frontLines, frontLineByDate } from '../../data/frontlines';
-import { days, dayByDate } from '../../data/days';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 
 const SAMPLES = 72;
 const MORPH_MS = 700;
@@ -20,6 +19,7 @@ function FrontLineLayer({ projection, k = 1 }: { projection: GeoProjection; k?: 
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const scrub = useBattleStore((s) => s.scrub);
   const visible = useBattleStore((s) => s.layers.front);
+  const { frontLines, frontLineByDate, days, dayByDate } = useBattle();
   const sc = 1 / k;
 
   /* 스크러버 드래그 중: 두 날짜의 전선을 소수 인덱스로 직접 보간 (RAF 없이 즉시) */
@@ -37,7 +37,7 @@ function FrontLineLayer({ projection, k = 1 }: { projection: GeoProjection; k?: 
     };
     const pts = lo === hi ? sample(lo) : lerpPolyline(sample(lo), sample(hi), f);
     return { pts, date: days[Math.round(scrub)].date };
-  }, [scrub, projection]);
+  }, [scrub, projection, days, frontLineByDate]);
 
   const target = useMemo(() => {
     if (selectedDay === 'all') return null;
@@ -51,7 +51,7 @@ function FrontLineLayer({ projection, k = 1 }: { projection: GeoProjection; k?: 
         SAMPLES,
       ),
     };
-  }, [selectedDay, projection]);
+  }, [selectedDay, projection, dayByDate, frontLineByDate]);
 
   const [drawn, setDrawn] = useState<Pt[] | null>(null);
   const drawnRef = useRef<Pt[] | null>(null);

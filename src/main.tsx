@@ -1,11 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
+import AppShell from './AppShell.tsx'
+import { applyLegacyRedirect } from './router'
+
+// 구형 딥링크(/?day=&event=) → /b/chuncheon 리다이렉트 (라우팅 전 1회)
+applyLegacyRedirect()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AppShell />
   </StrictMode>,
 )
 

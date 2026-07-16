@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project, lineToSmoothPath } from '../../lib/projection';
-import { planArrows, PLAN_FAILED_FROM } from '../../data/plans';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 
 /**
  * 유령 포위망 — 북한 2군단의 실현되지 못한 계획선.
@@ -11,7 +11,9 @@ import { useBattleStore } from '../../store/useBattleStore';
 function PlanLayer({ projection, k = 1 }: { projection: GeoProjection; k?: number }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const visible = useBattleStore((s) => s.layers.plan);
-  if (!visible) return null;
+  const plans = useBattle().plans;
+  if (!visible || !plans) return null;
+  const { arrows: planArrows, failedFrom: PLAN_FAILED_FROM } = plans;
   const sc = 1 / k;
 
   const failed =

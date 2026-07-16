@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { unitById } from '../../data/units';
-import { equipmentById } from '../../data/equipment';
+import { equipmentById } from '../../data/shared/equipment';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import type { MilitaryUnit } from '../../types';
 
 const ECHELON_LABEL: Record<MilitaryUnit['echelon'], string> = {
@@ -64,6 +64,7 @@ export default function UnitCard() {
   const selectedUnitId = useBattleStore((s) => s.selectedUnitId);
   const selectUnit = useBattleStore((s) => s.selectUnit);
   const selectEquip = useBattleStore((s) => s.selectEquip);
+  const unitById = useBattle().unitById;
   const u = selectedUnitId ? unitById.get(selectedUnitId) : undefined;
 
   useEffect(() => {

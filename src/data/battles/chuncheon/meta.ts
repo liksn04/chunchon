@@ -36,4 +36,8 @@ export const chuncheonMeta: BattleMeta = {
     headline: '춘천–홍천 전투',
     body: '— 대한민국을 구한 3일 —',
   },
+  inset: {
+    label: '춘천',
+    seoulFallDate: '1950-06-28',
+  },
 };

@@ -114,6 +114,8 @@ export interface BattleMeta {
   relief?: { light: string; dark: string };    // '/relief/<id>-light.png'
   cartouche?: { title: string; en: string; sub: string; stamp?: string };
   intro?: { headline: string; body: string };  // TitleIntro 카피 데이터화
+  /** 인셋 미니맵 — 이 전투 지점 라벨 + 서울 함락 주기 날짜 */
+  inset?: { label?: string; seoulFallDate?: string };
 }
 
 /** 한 전투의 완결된 데이터 묶음 (dynamic import 단위) */
@@ -127,6 +129,7 @@ export interface BattleData {
   unitPositionsByDate: Record<string, UnitPosition[]>;
   terrainPoints: TerrainPoint[];
   terrainLines: TerrainLine[];
+  boundary38: LngLat[];                          // 38선 도식 폴리라인
   plans?: { arrows: PlanArrow[]; failedFrom: string; note: string };  // 춘천 전용 → optional
   coordNotes: Record<string, CoordNote>;
   footnotesByEvent: Record<string, Footnote[]>;

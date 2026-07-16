@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import { useT } from '../../i18n';
 
 function Swatch({ children }: { children: React.ReactNode }) {
@@ -17,6 +18,8 @@ export default function Legend() {
   const [open, setOpen] = useState(false);
   const layers = useBattleStore((s) => s.layers);
   const toggleLayer = useBattleStore((s) => s.toggleLayer);
+  const hasPlans = !!useBattle().plans;
+  const layerKeys = hasPlans ? LAYER_KEYS : LAYER_KEYS.filter((k) => k !== 'plan');
 
   return (
     <>
@@ -64,12 +67,14 @@ export default function Legend() {
             </Swatch>
             {t('legend.withdraw')}
           </div>
-          <div className="legend-row">
-            <Swatch>
-              <path d="M2,7 H22 M22,3.5 L27,7 L22,10.5" fill="none" stroke="var(--nk)" strokeWidth={1.8} strokeDasharray="5 4" opacity={0.45} />
-            </Swatch>
-            {t('legend.plan')}
-          </div>
+          {hasPlans && (
+            <div className="legend-row">
+              <Swatch>
+                <path d="M2,7 H22 M22,3.5 L27,7 L22,10.5" fill="none" stroke="var(--nk)" strokeWidth={1.8} strokeDasharray="5 4" opacity={0.45} />
+              </Swatch>
+              {t('legend.plan')}
+            </div>
+          )}
 
           <h3>{t('legend.markers')}</h3>
           <div className="legend-row">
@@ -160,7 +165,7 @@ export default function Legend() {
 
           <h3>{t('legend.layers')}</h3>
           <div className="legend-layers">
-            {LAYER_KEYS.map((k) => (
+            {layerKeys.map((k) => (
               <label key={k}>
                 <input
                   type="checkbox"

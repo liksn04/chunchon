@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { eventById } from '../../data/events';
-import { unitById } from '../../data/units';
-import { eventPeople, personById } from '../../data/people';
-import { eventSources, sourceById } from '../../data/sources';
-import { eventCoordNotes, type CoordConfidence } from '../../data/geo';
-import { footnotesByEvent } from '../../data/footnotes';
+import { personById } from '../../data/shared/people';
+import { sourceById } from '../../data/shared/sources';
+import type { CoordConfidence } from '../../data/battles/chuncheon/geo';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import { useT } from '../../i18n';
 import PersonCard from './PersonCard';
 import type { Outcome, AxisId } from '../../types';
@@ -33,6 +31,8 @@ export default function EventDetailPanel({ eventId }: { eventId: string }) {
   const t = useT();
   const selectEvent = useBattleStore((s) => s.selectEvent);
   const selectUnit = useBattleStore((s) => s.selectUnit);
+  const { eventById, unitById, eventPeople, eventSources, coordNotes, footnotesByEvent } =
+    useBattle();
   const [openPerson, setOpenPerson] = useState<string | null>(null);
   const ev = eventById.get(eventId);
   if (!ev) return null;
@@ -47,7 +47,7 @@ export default function EventDetailPanel({ eventId }: { eventId: string }) {
   const refs = (eventSources[ev.id] ?? [])
     .map((id) => sourceById.get(id))
     .filter((s) => s !== undefined);
-  const coordNote = eventCoordNotes[ev.id];
+  const coordNote = coordNotes[ev.id];
   const notes = footnotesByEvent[ev.id] ?? [];
   const badgeKey: Record<CoordConfidence, string> = {
     confirmed: 'badge.confirmed',

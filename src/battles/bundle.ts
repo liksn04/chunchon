@@ -18,6 +18,8 @@ export interface BattleBundle extends BattleData {
   dayByDate: Map<string, DayPhase>;
   frontLineByDate: Map<string, FrontLine>;
   unitById: Map<string, MilitaryUnit>;
+  /** confidence !== 'confirmed' 인 사건 = 지도상 ≈ 표시 대상 */
+  approxCoordIds: Set<string>;
   /** 브리핑 대본: 각 날짜마다 [인트로 → 그날의 사건들] 순서 */
   briefScript: BriefStep[];
   /** 날짜 이동 순서 ('전체' → 각 날짜) */
@@ -37,6 +39,11 @@ export function makeBundle(data: BattleData): BattleBundle {
     dayByDate: new Map(data.days.map((d) => [d.date, d])),
     frontLineByDate: new Map(data.frontLines.map((f) => [f.date, f])),
     unitById: new Map(data.units.map((u) => [u.id, u])),
+    approxCoordIds: new Set(
+      Object.entries(data.coordNotes)
+        .filter(([, n]) => n.confidence !== 'confirmed')
+        .map(([id]) => id),
+    ),
     briefScript,
     dayOrder: ['all', ...data.days.map((d) => d.date)],
   };

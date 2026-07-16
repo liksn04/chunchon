@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { equipmentById } from '../../data/equipment';
+import { equipmentById } from '../../data/shared/equipment';
 import { useBattleStore } from '../../store/useBattleStore';
-import type { Equipment } from '../../data/equipment';
+import type { Equipment } from '../../data/shared/equipment';
 
 /** 측면 실루엣 — 야전 식별표 느낌 */
 function Silhouette({ e }: { e: Equipment }) {

@@ -1,4 +1,4 @@
-import { frontLines } from '../../data/frontlines';
+import { useBattle } from '../../battles/useBattle';
 
 /**
  * 일자별 전선 남하 속도(km/일) 막대그래프.
@@ -10,28 +10,30 @@ const KM_PER_DEG = 111.32;
 const avgLat = (coords: [number, number][]) =>
   coords.reduce((s, c) => s + c[1], 0) / coords.length;
 
-const base = avgLat(frontLines[0].coordinates);
-const cumulative = frontLines.map((fl) => (base - avgLat(fl.coordinates)) * KM_PER_DEG);
-const daily = frontLines.slice(1).map((fl, i) => ({
-  date: fl.date,
-  label: `${Number(fl.date.slice(5, 7))}.${Number(fl.date.slice(8, 10))}`,
-  km: Math.max(0, cumulative[i + 1] - cumulative[i]),
-}));
-
 const W = 268;
 const H = 128;
 const PAD_L = 6;
 const PAD_R = 6;
 const PAD_T = 16;
 const BASE_Y = H - 24;
-const maxKm = Math.max(...daily.map((d) => d.km));
-const bandW = (W - PAD_L - PAD_R) / daily.length;
-const barW = bandW - 8;
 
 /** 지연 구간: 국군이 붙들어 하루 남하가 작았던 6/26~6/28 (앞 3개) */
 const DELAY_COUNT = 3;
 
 export default function AdvanceChart() {
+  const frontLines = useBattle().frontLines;
+
+  const base = avgLat(frontLines[0].coordinates);
+  const cumulative = frontLines.map((fl) => (base - avgLat(fl.coordinates)) * KM_PER_DEG);
+  const daily = frontLines.slice(1).map((fl, i) => ({
+    date: fl.date,
+    label: `${Number(fl.date.slice(5, 7))}.${Number(fl.date.slice(8, 10))}`,
+    km: Math.max(0, cumulative[i + 1] - cumulative[i]),
+  }));
+  const maxKm = Math.max(...daily.map((d) => d.km));
+  const bandW = (W - PAD_L - PAD_R) / daily.length;
+  const barW = bandW - 8;
+
   return (
     <figure className="advance-chart">
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="일자별 전선 남하 속도 막대그래프. 6월 26~28일은 하루 5~8km로 정체하다가 국군 철수 이후 급가속한다.">

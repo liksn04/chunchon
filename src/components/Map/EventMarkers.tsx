@@ -1,10 +1,8 @@
 import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project } from '../../lib/projection';
-import { events } from '../../data/events';
-import { dayByDate } from '../../data/days';
-import { approxCoordIds } from '../../data/geo';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import type { Outcome } from '../../types';
 
 /** 결과별 내부 심볼 — 색+형태 이중 부호화 (색맹 대비) */
@@ -32,6 +30,7 @@ function EventMarkers({ projection, k = 1 }: { projection: GeoProjection; k?: nu
   const selectedEventId = useBattleStore((s) => s.selectedEventId);
   const selectEvent = useBattleStore((s) => s.selectEvent);
   const visible = useBattleStore((s) => s.layers.markers);
+  const { events, dayByDate, approxCoordIds } = useBattle();
   if (!visible) return null;
   const sc = 1 / k; // 마커·라벨 화면상 크기 고정
 

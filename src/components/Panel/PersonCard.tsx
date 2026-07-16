@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { personById, personMeta } from '../../data/people';
+import { personById, personMeta } from '../../data/shared/people';
 import RankInsignia from './RankInsignia';
 import type { Faction } from '../../types';
 

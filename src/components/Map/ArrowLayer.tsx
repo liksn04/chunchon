@@ -1,9 +1,8 @@
 import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project, lineToSmoothPath } from '../../lib/projection';
-import { movements } from '../../data/movements';
-import { dayByDate } from '../../data/days';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import type { MovementArrow } from '../../types';
 
 const STROKE: Record<MovementArrow['style'], number> = {
@@ -63,6 +62,7 @@ function markerId(a: MovementArrow) {
 function ArrowLayer({ projection, k = 1 }: { projection: GeoProjection; k?: number }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const visible = useBattleStore((s) => s.layers.arrows);
+  const { movements, dayByDate } = useBattle();
   if (!visible) return null;
   const sc = 1 / k;
 

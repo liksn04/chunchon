@@ -1,0 +1,110 @@
+.index-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px clamp(16px, 4vw, 48px) 48px;
+  background: var(--map-buff);
+  color: var(--ink);
+}
+
+.index-phase {
+  max-width: 1080px;
+  margin: 0 auto 28px;
+}
+
+.index-phase-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--ink-faint);
+  padding-bottom: 6px;
+  margin: 0 0 14px;
+}
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.index-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  padding: 14px 16px;
+  background: var(--panel-paper);
+  border: 1px solid var(--ink-faint);
+  border-left: 3px solid var(--rok);
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.index-card:hover:not(:disabled),
+.index-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  border-color: var(--rok);
+  outline: none;
+}
+
+.index-card--planned {
+  border-left-color: var(--ink-faint);
+  opacity: 0.68;
+  cursor: default;
+}
+
+.index-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.index-card-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.index-badge {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  padding: 2px 6px;
+  border-radius: 2px;
+  border: 1px solid var(--ink-faint);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.index-badge--on {
+  border-color: var(--rok);
+  color: var(--rok);
+}
+
+.index-card-dates {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.index-card-summary {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.index-card-open {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--rok);
+  margin-top: auto;
+}

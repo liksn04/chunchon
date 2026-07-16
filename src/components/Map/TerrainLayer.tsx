@@ -1,8 +1,8 @@
 import { memo, useMemo } from 'react';
 import type { GeoProjection } from 'd3-geo';
-import { project, lineToPath, lineToSmoothPath, RELIEF_BBOX } from '../../lib/projection';
-import { terrainPoints, terrainLines, boundary38 } from '../../data/terrain';
+import { project, lineToPath, lineToSmoothPath } from '../../lib/projection';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import type { TerrainPoint } from '../../types';
 
 function PointSymbol({ p }: { p: TerrainPoint }) {
@@ -52,38 +52,47 @@ function TerrainLayer({
 }) {
   const showLabels = useBattleStore((s) => s.layers.terrain);
   const theme = useBattleStore((s) => s.theme);
+  const { terrainPoints, terrainLines, boundary38, meta } = useBattle();
+  const relief = meta.relief;
+  const reliefBbox = meta.reliefBbox;
   const s = 1 / k; // 라벨·기호 역-스케일: 화면상 크기 고정
 
-  /* 지오메트리는 projection에만 의존 — 줌(k) 변경 시 재계산하지 않도록 메모 */
+  /* 지오메트리는 projection·전투 데이터에만 의존 — 줌(k) 변경 시 재계산하지 않도록 메모 */
   const geo = useMemo(() => {
     const rivers = terrainLines.filter((l) => l.kind === 'river');
     const roads = terrainLines.filter((l) => l.kind === 'road');
     // 음영기복 이미지 배치: 넓은 릴리프 범위 북서(좌상)~남동(우하)
-    const nw = project(projection, [RELIEF_BBOX.sw[0], RELIEF_BBOX.ne[1]]);
-    const se = project(projection, [RELIEF_BBOX.ne[0], RELIEF_BBOX.sw[1]]);
+    let reliefRect: { x: number; y: number; w: number; h: number } | null = null;
+    if (reliefBbox) {
+      const nw = project(projection, [reliefBbox.sw[0], reliefBbox.ne[1]]);
+      const se = project(projection, [reliefBbox.ne[0], reliefBbox.sw[1]]);
+      reliefRect = { x: nw[0], y: nw[1], w: se[0] - nw[0], h: se[1] - nw[1] };
+    }
     return {
       rivers: rivers.map((r) => ({ id: r.id, name: r.name, d: lineToSmoothPath(projection, r.coordinates), coords: r.coordinates })),
       roads: roads.map((r) => ({ id: r.id, name: r.name, d: lineToSmoothPath(projection, r.coordinates), coords: r.coordinates })),
-      relief: { x: nw[0], y: nw[1], w: se[0] - nw[0], h: se[1] - nw[1] },
+      relief: reliefRect,
       b38: lineToPath(projection, boundary38),
       b38a: project(projection, boundary38[0]),
       points: terrainPoints.map((p) => ({ p, xy: project(projection, p.coord) })),
     };
-  }, [projection]);
+  }, [projection, terrainPoints, terrainLines, boundary38, reliefBbox]);
 
   return (
     <g>
-      {/* 음영기복(hillshade) — 실제 지형 근사 셰이딩 */}
-      <image
-        href={theme === 'dark' ? '/relief-dark.png' : '/relief-light.png'}
-        x={geo.relief.x}
-        y={geo.relief.y}
-        width={geo.relief.w}
-        height={geo.relief.h}
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        style={{ pointerEvents: 'none' }}
-      />
+      {/* 음영기복(hillshade) — 래스터 relief가 있는 전투만. 없으면 종이 배경 + 벡터 지형 */}
+      {relief && reliefBbox && geo.relief && (
+        <image
+          href={theme === 'dark' ? relief.dark : relief.light}
+          x={geo.relief.x}
+          y={geo.relief.y}
+          width={geo.relief.w}
+          height={geo.relief.h}
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          style={{ pointerEvents: 'none' }}
+        />
+      )}
 
       {/* 강 */}
       {geo.rivers.map((r) => (
