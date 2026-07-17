@@ -23,8 +23,8 @@ export const chuncheonMeta: BattleMeta = {
     ne: [128.65, 38.3],
   },
   relief: {
-    light: '/relief/chuncheon-light.png',
-    dark: '/relief/chuncheon-dark.png',
+    light: '/relief/chuncheon-light.webp',
+    dark: '/relief/chuncheon-dark.webp',
   },
   cartouche: {
     title: '춘천–홍천',

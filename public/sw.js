@@ -1,5 +1,10 @@
 /* 6·25 전쟁 전투 상황도 — 오프라인 캐시 서비스워커 */
-const CACHE = 'kwatlas-v2';
+// __SW_VERSION__ 은 빌드 시 vite.config.ts의 swVersionPlugin이 실제 값(git short
+// sha 또는 타임스탬프)으로 치환한다. dev 서버는 public/sw.js를 가공 없이 그대로
+// 서빙하므로 플레이스홀더가 살아남는데, 그 경우엔 'dev'로 폴백한다.
+const RAW_VERSION = '__SW_VERSION__';
+const VERSION = RAW_VERSION.startsWith('__') ? 'dev' : RAW_VERSION;
+const CACHE = 'kwatlas-' + VERSION;
 const CORE = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/og.png'];
 
 self.addEventListener('install', (e) => {

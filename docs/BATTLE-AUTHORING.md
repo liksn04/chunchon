@@ -204,12 +204,20 @@ export type CoordConfidence = 'confirmed' | 'offset' | 'estimated';
 4. **해상도** — 가로 약 2000px 기준(그 이상은 페이로드만 늘고 체감 차이가
    작다). PNG는 반투명(알파) 배경으로 내보내 지도 종이 질감과 자연스럽게
    섞이게 한다.
-5. **파일 배치** — `public/relief/<id>-light.png`, `public/relief/<id>-dark.png`.
-   `meta.ts`에 등록:
+5. **파일 배치 및 WebP 변환** — GIS에서 내보낸 PNG를 우선
+   `public/relief/<id>-light.png`, `public/relief/<id>-dark.png`로 둔 다음
+   ```bash
+   npm run relief:webp
+   ```
+   를 실행한다 — `public/relief/` 안의 모든 `*.png`를 같은 이름의 `.webp`
+   (quality ~82)로 변환한다(용량 약 93% 절감, 육안 화질 차이 없음). 원본
+   PNG는 스크립트가 지우지 않으므로 결과를 확인한 뒤 직접
+   `git rm public/relief/<id>-{light,dark}.png`로 정리한다. `meta.ts`에는
+   **`.webp` 경로**로 등록한다:
    ```ts
    relief: {
-     light: '/relief/<id>-light.png',
-     dark: '/relief/<id>-dark.png',
+     light: '/relief/<id>-light.webp',
+     dark: '/relief/<id>-dark.webp',
    },
    ```
 
