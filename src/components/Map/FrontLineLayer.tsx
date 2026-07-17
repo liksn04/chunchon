@@ -114,14 +114,18 @@ function FrontLineLayer({ projection, k = 1 }: { projection: GeoProjection; k?: 
           const d = smoothPathFromPoints(pts);
           const [lx, ly] = pts[pts.length - 1];
           const label = `${Number(fl.date.slice(5, 7))}.${Number(fl.date.slice(8, 10))}`;
+          // 날짜 라벨은 처음·마지막 전선에만 — 중간 라벨이 겹겹이 쌓이는 것을 방지
+          const labeled = i === 0 || i === frontLines.length - 1;
           return (
             <g key={fl.date} opacity={0.3 + i * 0.02}>
               <path d={d} fill="none" stroke="var(--nk)" strokeWidth={1.5} strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
-              <g transform={`translate(${lx.toFixed(1)},${ly.toFixed(1)}) scale(${sc})`}>
-                <text className="map-label map-label--mono" x={5} y={3} fontSize={8.5} fill="var(--nk)">
-                  {label}
-                </text>
-              </g>
+              {labeled && (
+                <g transform={`translate(${lx.toFixed(1)},${ly.toFixed(1)}) scale(${sc})`}>
+                  <text className="map-label map-label--mono" x={5} y={3} fontSize={8.5} fill="var(--nk)">
+                    {label}
+                  </text>
+                </g>
+              )}
             </g>
           );
         })}

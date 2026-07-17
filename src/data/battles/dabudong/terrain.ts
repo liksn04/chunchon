@@ -40,6 +40,7 @@ export const terrainLines: TerrainLine[] = [
     kind: 'river',
     name: '낙동강',
     approx: true,
+    width: 2.2,                          // 광역 축척에서 과대 표현 방지
     coordinates: [
       [128.285, 36.305],
       [128.300, 36.260],
@@ -59,6 +60,7 @@ export const terrainLines: TerrainLine[] = [
     kind: 'river',
     name: '금호강',
     approx: true,
+    width: 1.5,
     coordinates: [
       [128.360, 35.925],
       [128.420, 35.915],

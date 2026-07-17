@@ -35,7 +35,14 @@ function EventMarkers({ projection, k = 1 }: { projection: GeoProjection; k?: nu
 
   const activeIds =
     selectedDay === 'all' ? null : dayByDate.get(selectedDay)?.activeEventIds ?? [];
-  const shown = events.filter((e) => !activeIds || activeIds.includes(e.id));
+  // 지도 편집 스키마(mapLabel)를 제공하는 전투는 전체 보기에서 핵심 사건만 남겨
+  // 과밀을 막는다. 스키마가 없는 전투(춘천)는 종전대로 전부 표시.
+  const curated = events.some((e) => e.mapLabel);
+  const shown = events.filter((e) => {
+    if (activeIds) return activeIds.includes(e.id);
+    if (!curated) return true;
+    return (e.mapLabel?.showAtAll ?? e.key ?? false) || e.id === selectedEventId;
+  });
 
   return (
     <g>

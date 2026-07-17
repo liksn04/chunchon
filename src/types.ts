@@ -117,6 +117,7 @@ export interface TerrainLine {
   coordinates: LngLat[];
   approx?: boolean;                    // 도식화된 근사 linework
   emphasis?: boolean;
+  width?: number;                      // 강 굵기(px) — 광역 전투에서 하천 과대 표현 방지
   mapLabel?: MapLabelPlacement;
 }
 
@@ -180,7 +181,7 @@ export interface BattleData {
     arrows: PlanArrow[];
     failedFrom: string;
     note: string;
-    stamp?: { text: string; coord: LngLat; rotate?: number };
+    stamp?: { text: string; coord: LngLat; rotate?: number; scale?: number };
   };
   overview?: BattleOverview;
   coordNotes: Record<string, CoordNote>;

@@ -78,7 +78,7 @@ function PlanLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numbe
       {failed && (
         <g
           className="fade-in"
-          transform={`translate(${sx.toFixed(1)},${sy.toFixed(1)}) scale(${sc}) rotate(${stamp?.rotate ?? -7})`}
+          transform={`translate(${sx.toFixed(1)},${sy.toFixed(1)}) scale(${(sc * (stamp?.scale ?? 1)).toFixed(3)}) rotate(${stamp?.rotate ?? -7})`}
           opacity={0.75}
         >
           <rect x={-stampWidth / 2} y={-19} width={stampWidth} height={38} fill="none" stroke="var(--nk)" strokeWidth={2.5} />

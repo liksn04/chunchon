@@ -108,7 +108,7 @@ function TerrainLayer({
         />
       )}
 
-      <g aria-hidden="true" opacity={0.28}>
+      <g aria-hidden="true" opacity={0.38}>
         {geo.contours.flatMap((c) =>
           Array.from({ length: c.rings }, (_, i) => {
             const ratio = (i + 1) / c.rings;
@@ -138,7 +138,7 @@ function TerrainLayer({
           d={r.d}
           fill="none"
           stroke="var(--water-teal)"
-          strokeWidth={3}
+          strokeWidth={r.width ?? 3}
           vectorEffect="non-scaling-stroke"
           strokeLinecap="round"
           strokeLinejoin="round"

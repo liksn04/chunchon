@@ -50,6 +50,8 @@ export const planNote =
 
 export const planStamp = {
   text: '대구 돌파 기도 좌절',
-  coord: [128.555, 35.955] as [number, number],
-  rotate: -6,
+  // 대구 진출 기도 화살표 위에 겹쳐 찍는다 — 좌절된 계획 위의 소인(消印) 연출
+  coord: [128.585, 35.990] as [number, number],
+  rotate: -8,
+  scale: 0.72,
 };
