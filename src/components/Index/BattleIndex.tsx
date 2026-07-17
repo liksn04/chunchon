@@ -3,23 +3,24 @@ import { battleMetas } from '../../battles/registry';
 import { navigate } from '../../router';
 import { useT } from '../../i18n';
 import { useBattleStore } from '../../store/useBattleStore';
-import { koreaOutline, KOREA_BBOX } from '../../data/shared/korea';
-import { closedSmoothPathFromPoints, type Pt } from '../../lib/morph';
-import type { BattleMeta, LngLat, WarPhase } from '../../types';
+import { koreaOutline, jejuOutline, LAT38_LNG, makeKoreaToXY } from '../../data/shared/korea';
+import type { Pt } from '../../lib/morph';
+import type { BattleMeta, WarPhase } from '../../types';
 import './BattleIndex.css';
 
 /** 국면 표시 순서 */
 const PHASE_ORDER: WarPhase[] = ['invasion', 'naktong', 'counter', 'ccf', 'stalemate'];
 
-/** 목록 지도 SVG 크기 — InsetMap과 같은 선형(비-메르카토르) 근사 매핑, 전면 표시용으로 확대 */
-const MAP_W = 320;
-const MAP_H = 380;
-const MAP_PAD = 16;
+/** 목록 지도 SVG 크기 — 반도 종횡비(위도 보정)에 맞춘 세로형 뷰박스 */
+const MAP_W = 280;
+const MAP_H = 470;
+const MAP_PAD = 14;
 
-const toXY = ([lng, lat]: LngLat): Pt => [
-  MAP_PAD + ((lng - KOREA_BBOX.lngMin) / (KOREA_BBOX.lngMax - KOREA_BBOX.lngMin)) * (MAP_W - 2 * MAP_PAD),
-  MAP_PAD + ((KOREA_BBOX.latMax - lat) / (KOREA_BBOX.latMax - KOREA_BBOX.latMin)) * (MAP_H - 2 * MAP_PAD),
-];
+const toXY = makeKoreaToXY(MAP_W, MAP_H, MAP_PAD);
+
+/** 실측 해안선은 점이 촘촘해 스무딩 없이 직선 연결로 그린다 */
+const closedPath = (pts: Pt[]): string =>
+  `M${pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join('L')}Z`;
 
 /** 'YYYY-MM-DD'~'YYYY-MM-DD' → '1950.6.25–7.1' 압축 표기(동일 연/월이면 생략) */
 function formatDateRange(start: string, end: string): string {
@@ -51,9 +52,11 @@ export default function BattleIndex() {
     cardRefs.current.get(selectedId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [selectedId]);
 
-  const silhouette = closedSmoothPathFromPoints(koreaOutline.map(toXY));
-  const [x38a, y38a] = toXY([KOREA_BBOX.lngMin, 38]);
-  const [x38b, y38b] = toXY([KOREA_BBOX.lngMax, 38]);
+  const silhouette = closedPath(koreaOutline.map(toXY));
+  const jeju = closedPath(jejuOutline.map(toXY));
+  // 38선은 반도 폭(해안 교차 경도)에 약간의 여유만 두고 그린다
+  const [x38a, y38a] = toXY([LAT38_LNG[0] - 0.3, 38]);
+  const [x38b, y38b] = toXY([LAT38_LNG[1] + 0.3, 38]);
 
   const activate = (m: BattleMeta) => {
     if (m.status === 'available') {
@@ -82,6 +85,7 @@ export default function BattleIndex() {
           aria-label={t('index.mapLabel')}
         >
           <path d={silhouette} className="index-map-outline" />
+          <path d={jeju} className="index-map-outline" />
           <line
             x1={x38a}
             y1={y38a}

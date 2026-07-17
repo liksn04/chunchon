@@ -1,20 +1,21 @@
 import type { GeoProjection } from 'd3-geo';
 import type { ZoomTransform } from 'd3-zoom';
-import { koreaOutline, KOREA_BBOX, seoul } from '../../data/shared/korea';
-import { closedSmoothPathFromPoints, type Pt } from '../../lib/morph';
+import { koreaOutline, jejuOutline, LAT38_LNG, seoul, makeKoreaToXY } from '../../data/shared/korea';
+import type { Pt } from '../../lib/morph';
 import { useBattleStore } from '../../store/useBattleStore';
 import { useBattle } from '../../battles/useBattle';
 import { useT } from '../../i18n';
 import type { LngLat } from '../../types';
 
-const W = 96;
-const H = 108;
-const PAD = 8;
+const W = 80;
+const H = 124;
+const PAD = 6;
 
-const toInset = ([lng, lat]: LngLat): Pt => [
-  PAD + ((lng - KOREA_BBOX.lngMin) / (KOREA_BBOX.lngMax - KOREA_BBOX.lngMin)) * (W - 2 * PAD),
-  PAD + ((KOREA_BBOX.latMax - lat) / (KOREA_BBOX.latMax - KOREA_BBOX.latMin)) * (H - 2 * PAD),
-];
+const toInset = makeKoreaToXY(W, H, PAD);
+
+/** 실측 해안선은 점이 촘촘해 스무딩 없이 직선 연결로 그린다 */
+const closedPath = (pts: Pt[]): string =>
+  `M${pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join('L')}Z`;
 
 /**
  * 좌상단 인셋 미니맵 — 한반도 실루엣 + 38선 + 서울/춘천 + 현재 뷰박스.
@@ -37,7 +38,8 @@ export default function InsetMap({
   const seoulFallDate = meta.inset?.seoulFallDate;
   const seoulFallen = !!seoulFallDate && (selectedDay === 'all' || selectedDay >= seoulFallDate);
 
-  const silhouette = closedSmoothPathFromPoints(koreaOutline.map(toInset));
+  const silhouette = closedPath(koreaOutline.map(toInset));
+  const jeju = closedPath(jejuOutline.map(toInset));
 
   // 현재 화면 사각형 네 모서리를 지리좌표로 역투영 → 인셋 좌표
   const corners: [number, number][] = [
@@ -60,8 +62,8 @@ export default function InsetMap({
       ? `M${viewPts.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' L')} Z`
       : '';
 
-  const lat38a = toInset([KOREA_BBOX.lngMin, 38]);
-  const lat38b = toInset([KOREA_BBOX.lngMax, 38]);
+  const lat38a = toInset([LAT38_LNG[0] - 0.3, 38]);
+  const lat38b = toInset([LAT38_LNG[1] + 0.3, 38]);
   const [seoulX, seoulY] = toInset(seoul);
   const [ccX, ccY] = toInset(meta.marker);
 
@@ -73,6 +75,12 @@ export default function InsetMap({
           fill="var(--map-buff-deep)"
           stroke="var(--ink-soft)"
           strokeWidth={1}
+        />
+        <path
+          d={jeju}
+          fill="var(--map-buff-deep)"
+          stroke="var(--ink-soft)"
+          strokeWidth={0.8}
         />
         <line
           x1={lat38a[0]}
