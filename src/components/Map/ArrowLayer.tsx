@@ -68,7 +68,9 @@ function ArrowLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numb
 
   const activeIds =
     selectedDay === 'all' ? null : dayByDate.get(selectedDay)?.activeArrowIds ?? [];
-  const shown = movements.filter((m) => !activeIds || activeIds.includes(m.id));
+  const shown = movements.filter((m) =>
+    activeIds ? activeIds.includes(m.id) : (m.mapLabel?.showPathAtAll ?? true),
+  );
 
   return (
     <g aria-hidden="true">
@@ -77,6 +79,15 @@ function ArrowLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numb
         const color = a.faction === 'ROK' ? 'var(--rok)' : 'var(--nk)';
         const mid = project(projection, a.path[Math.floor(a.path.length / 2)]);
         const dashed = a.style === 'withdraw';
+        const placement = a.mapLabel;
+        const showLabel =
+          k >= (placement?.minZoom ?? 0) &&
+          (selectedDay !== 'all' || (placement?.showAtAll ?? true));
+        const dx = placement?.dx ?? 7;
+        const dy = placement?.dy ?? -6;
+        const anchor = placement?.anchor ?? 'start';
+        const label = placement?.text ?? a.label;
+
         return (
           <g key={`${a.id}-${selectedDay}`}>
             <path
@@ -94,7 +105,6 @@ function ArrowLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numb
               opacity={a.style === 'advance' ? 0.75 : 0.9}
               markerEnd={`url(#${markerId(a)})`}
             />
-            {/* 행군하듯 흐르는 점선 오버레이 */}
             <path
               d={d}
               className="arrow-flow"
@@ -106,18 +116,21 @@ function ArrowLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numb
               vectorEffect="non-scaling-stroke"
               opacity={0.8}
             />
-            <g transform={`translate(${mid[0].toFixed(1)},${mid[1].toFixed(1)}) scale(${sc})`}>
-              <text
-                className="map-label fade-in map-label--mono"
-                style={{ animationDelay: `${i * 0.12 + 0.4}s` }}
-                x={7}
-                y={-6}
-                fontSize={9.5}
-                fill={color}
-              >
-                {a.label}
-              </text>
-            </g>
+            {showLabel && (
+              <g transform={`translate(${mid[0].toFixed(1)},${mid[1].toFixed(1)}) scale(${sc})`}>
+                <text
+                  className="map-label fade-in map-label--mono"
+                  style={{ animationDelay: `${i * 0.12 + 0.4}s` }}
+                  x={dx}
+                  y={dy}
+                  textAnchor={anchor}
+                  fontSize={9.5}
+                  fill={color}
+                >
+                  {label}
+                </text>
+              </g>
+            )}
           </g>
         );
       })}

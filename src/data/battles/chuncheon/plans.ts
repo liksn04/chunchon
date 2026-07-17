@@ -10,6 +10,15 @@ export interface PlanArrow {
   id: string;
   label: string;
   path: LngLat[]; // 남서쪽으로 화면 밖까지 뻗는다 — 의도된 프레이밍
+  mapLabel?: {
+    text?: string;
+    index?: number;
+    dx?: number;
+    dy?: number;
+    anchor?: 'start' | 'middle' | 'end';
+    minZoom?: number;
+    showAtAll?: boolean;
+  };
 }
 
 export const planArrows: PlanArrow[] = [

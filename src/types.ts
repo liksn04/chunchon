@@ -11,6 +11,29 @@ export type Outcome = 'rok' | 'nk' | 'mixed' | 'none';
 /** d3.geo 순서: [경도, 위도] */
 export type LngLat = [number, number];
 
+/** 전투별 지도 편집용 라벨 배치. 좌표와 라벨 위치를 분리해 충돌을 줄인다. */
+export interface MapLabelPlacement {
+  text?: string;
+  dx?: number;
+  dy?: number;
+  anchor?: 'start' | 'middle' | 'end';
+  minZoom?: number;
+  /** 전체(누적) 화면에서 라벨 표시 여부 */
+  showAtAll?: boolean;
+  /** 전체(누적) 화면에서 이동 경로 자체를 표시할지 여부 */
+  showPathAtAll?: boolean;
+  /** 마커와 이격 라벨 사이에 유도선을 표시 */
+  leader?: boolean;
+}
+
+/** 실제 DEM이 아닌 상황도용 도식 등고선. 단위는 경위도 차이값이다. */
+export interface TerrainContour {
+  rxDeg: number;
+  ryDeg: number;
+  rings?: number;
+  rotate?: number;
+}
+
 export interface MilitaryUnit {
   id: string;
   faction: Faction;
@@ -40,6 +63,7 @@ export interface BattleEvent {
   significance?: string;
   tags?: string[];
   key?: boolean;                       // ★ 핵심 사건 강조
+  mapLabel?: MapLabelPlacement;
 }
 
 export interface MovementArrow {
@@ -49,6 +73,7 @@ export interface MovementArrow {
   activeFrom: string;                  // 이 날짜부터 표시 'YYYY-MM-DD'
   path: LngLat[];
   style: 'advance' | 'attack' | 'withdraw';
+  mapLabel?: MapLabelPlacement;
 }
 
 export interface FrontLine {
@@ -80,6 +105,8 @@ export interface TerrainPoint {
     note?: string;
     submerged1950?: boolean;           // 1950년엔 없었거나 이후 수몰
     uncertain?: boolean;               // 좌표 보정 필요
+    label?: MapLabelPlacement;
+    contour?: TerrainContour;
   };
 }
 
@@ -89,6 +116,8 @@ export interface TerrainLine {
   name: string;
   coordinates: LngLat[];
   approx?: boolean;                    // 도식화된 근사 linework
+  emphasis?: boolean;
+  mapLabel?: MapLabelPlacement;
 }
 
 /** 지리 범위 (남서·북동 모서리) */
@@ -118,6 +147,23 @@ export interface BattleMeta {
   inset?: { label?: string; seoulFallDate?: string };
 }
 
+export interface BattleOverview {
+  kicker: string;
+  rok: string;
+  nk: string;
+  result: {
+    label: string;
+    note: string;
+    tone?: 'rok' | 'nk' | 'mixed';
+  };
+  sections: {
+    title: string;
+    paragraphs: string[];
+    note?: boolean;
+  }[];
+  sourceNote: string;
+}
+
 /** 한 전투의 완결된 데이터 묶음 (dynamic import 단위) */
 export interface BattleData {
   meta: BattleMeta;
@@ -130,7 +176,13 @@ export interface BattleData {
   terrainPoints: TerrainPoint[];
   terrainLines: TerrainLine[];
   boundary38: LngLat[];                          // 38선 도식 폴리라인
-  plans?: { arrows: PlanArrow[]; failedFrom: string; note: string };  // 춘천 전용 → optional
+  plans?: {
+    arrows: PlanArrow[];
+    failedFrom: string;
+    note: string;
+    stamp?: { text: string; coord: LngLat; rotate?: number };
+  };
+  overview?: BattleOverview;
   coordNotes: Record<string, CoordNote>;
   footnotesByEvent: Record<string, Footnote[]>;
   eventSources: Record<string, string[]>;      // 공용 sources 카탈로그 id 참조

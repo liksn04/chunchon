@@ -5,7 +5,72 @@ import { useT } from '../../i18n';
 import StatBar from './StatBar';
 import AdvanceChart from './AdvanceChart';
 
-export default function OverviewPanel() {
+function DataDrivenOverview() {
+  const { meta, overview, days, dayByDate } = useBattle();
+  const selectedDay = useBattleStore((s) => s.selectedDay);
+  const day = selectedDay === 'all' ? null : dayByDate.get(selectedDay);
+  const dayIndex = day ? days.indexOf(day) : -1;
+  if (!overview) return null;
+
+  const tone = overview.result.tone ?? 'rok';
+  const badgeClass = tone === 'nk' ? 'badge--nk' : 'badge--rok';
+
+  return (
+    <div className="panel-inner">
+      <div className="panel-kicker">{overview.kicker}</div>
+      <h2 className="panel-title">{meta.name.ko}</h2>
+
+      <table className="fact-table">
+        <tbody>
+          <tr>
+            <th scope="row">국군·유엔군</th>
+            <td>{overview.rok}</td>
+          </tr>
+          <tr>
+            <th scope="row">북한군</th>
+            <td>{overview.nk}</td>
+          </tr>
+          <tr>
+            <th scope="row">결과</th>
+            <td>
+              <span className={`badge ${badgeClass}`}>{overview.result.label}</span>{' '}
+              {overview.result.note}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {day && (
+        <div className="headline-box" aria-live="polite">
+          <span className="headline-date">
+            {day.label}
+            {dayIndex >= 0 && ` (국면 ${dayIndex + 1})`}
+          </span>
+          {day.headline}
+        </div>
+      )}
+
+      {overview.sections.map((section) => (
+        <div className="panel-section" key={section.title}>
+          <h3>{section.title}</h3>
+          {section.paragraphs.map((paragraph, i) => (
+            <p
+              key={i}
+              className={`panel-body${section.note ? ' panel-body--note' : ''}`}
+              style={i > 0 ? { marginTop: 8 } : undefined}
+            >
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      ))}
+
+      <p className="source-note">{overview.sourceNote}</p>
+    </div>
+  );
+}
+
+function ChuncheonOverview() {
   const t = useT();
   const { days, dayByDate, plans } = useBattle();
   const selectedDay = useBattleStore((s) => s.selectedDay);
@@ -109,4 +174,9 @@ export default function OverviewPanel() {
       </p>
     </div>
   );
+}
+
+export default function OverviewPanel() {
+  const { overview } = useBattle();
+  return overview ? <DataDrivenOverview /> : <ChuncheonOverview />;
 }
