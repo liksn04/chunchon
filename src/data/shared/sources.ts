@@ -83,6 +83,54 @@ export const sources: Source[] = [
     publisher: '진실·화해를위한과거사정리위원회',
     url: 'https://jinsil.go.kr/KoreanWar/25.do',
   },
+  {
+    id: 'imhc-naktong',
+    label: '『6·25전쟁사』 제5권 — 낙동강선 방어작전',
+    publisher: '국방부 군사편찬연구소',
+    url: 'https://archives.imhc.mil.kr/collection/imhc/detail?cltnSeq=256',
+  },
+  {
+    id: 'cmh-appleman',
+    label: 'South to the Naktong, North to the Yalu (CMH Pub 20-2)',
+    publisher: 'U.S. Army Center of Military History',
+    url: 'https://history.army.mil/Publications/Publications-Catalog/South-to-the-Naktong-North-to-the-Yalu/',
+  },
+  {
+    id: 'aks-dabudong',
+    label: '다부동전투',
+    publisher: '한국민족문화대백과사전',
+    url: 'https://encykorea.aks.ac.kr/Article/E0013458',
+  },
+  {
+    id: 'mpva-dabudong',
+    label: '우리가 알아야 할 8월의 6·25 전투 — 다부동 전투',
+    publisher: '국가보훈부',
+    url: 'https://mpva.go.kr/mpva/selectBbsNttView.do?bbsNo=16&integrDeptCode=&key=77&nttNo=4913&pageIndex=1&searchCnd=all&searchCtgry=&searchKrwd=',
+  },
+  {
+    id: 'dabu-museum',
+    label: '다부동전투 — 단계별 전투 상황',
+    publisher: '다부동전적기념관',
+    url: 'https://www.dabu.or.kr/ver2/sub2/sub2_1.php',
+  },
+  {
+    id: 'aks-paik',
+    label: '백선엽',
+    publisher: '한국민족문화대백과사전',
+    url: 'https://encykorea.aks.ac.kr/Article/E0080643',
+  },
+  {
+    id: 'mpva-kim-jeomgon',
+    label: '4월의 6·25전쟁영웅 김점곤 육군 소장',
+    publisher: '국가보훈부',
+    url: 'https://mpva.go.kr/mpva/selectBbsNttView.do?bbsNo=16&integrDeptCode=&key=77&nttNo=4854&pageIndex=1&searchCnd=all&searchCtgry=&searchKrwd=',
+  },
+  {
+    id: 'paik-memoir',
+    label: '백선엽, 『군과 나: 6·25 한국전쟁 회고록』 개정판',
+    publisher: '시대정신, 2016 (KAIST 도서관 서지)',
+    url: 'https://library.kaist.ac.kr/search/ctlgSearch/posesn/view.do?bibctrlno=662206&se=b0&ty=B',
+  },
 ];
 
 export const sourceById = new Map(sources.map((s) => [s.id, s]));

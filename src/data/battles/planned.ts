@@ -33,16 +33,6 @@ export const plannedMetas: BattleMeta[] = [
     status: 'planned',
   },
   {
-    id: 'dabudong',
-    name: { ko: '다부동 전투', en: 'Battle of Tabu-dong' },
-    phase: 'naktong',
-    dateRange: { start: '1950-08-03', end: '1950-08-29' },
-    marker: [128.4, 36.03],
-    summary:
-      '칠곡 다부동 일대에서 국군 제1사단이 대구로 향하는 관문을 지키기 위해 북한군 3개 사단의 집중 공세를 약 한 달간 저지한, 낙동강 방어선의 대표적 격전지다. 유학산 등 주요 고지의 주인이 여러 차례 바뀌는 공방 끝에 방어선이 유지되어 대구 함락을 막았다.',
-    status: 'planned',
-  },
-  {
     id: 'pohang-angang',
     name: { ko: '포항–안강·기계 전투', en: 'Battles of Pohang–Angang-Gigye' },
     phase: 'naktong',

@@ -145,6 +145,35 @@ export const equipment: Equipment[] = [
       note: '전쟁기념관 전시(M1 81mm)',
     },
   },
+  {
+    id: 'm26-pershing',
+    name: 'M26 퍼싱 전차',
+    origin: '미제',
+    user: 'ROK',
+    kind: 'tank',
+    klass: '중전차',
+    specs: [
+      { label: '주포', value: '90mm M3' },
+      { label: '승무원', value: '5명' },
+      { label: '중량', value: '약 42t' },
+      { label: '전투 역할', value: 'T-34 대응·도로축 화력지원' },
+    ],
+    note: '미 제27보병연대 반격과 천평계곡 방어에 투입된 전차 지원 전력. 90mm 주포와 두꺼운 장갑으로 T-34에 대응했으며 좁은 다부동 도로에서 보병·포병과 결합 운용됐다.',
+  },
+  {
+    id: 'bazooka-35',
+    name: '3.5인치 로켓포',
+    origin: '미제',
+    user: 'ROK',
+    kind: 'atgun',
+    klass: '휴대용 대전차로켓',
+    specs: [
+      { label: '구경', value: '3.5in(88.9mm)' },
+      { label: '운용', value: '2인조' },
+      { label: '용도', value: '근거리 대전차' },
+    ],
+    note: '초기 2.36인치 로켓포의 관통력 부족을 보완해 한국전쟁 중 긴급 투입됐다. 다부동 도로축의 야간 방어에서 전차를 근거리에서 저지하는 수단으로 사용됐다.',
+  },
 ];
 
 export const equipmentById = new Map(equipment.map((e) => [e.id, e]));
