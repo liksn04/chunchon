@@ -12,6 +12,7 @@ test.beforeEach(async ({ page }) => {
       localStorage.setItem('kwatlas-theme', 'light');
       localStorage.setItem('kwatlas-onboarded', '1');
       localStorage.setItem('kwatlas-introseen:chuncheon', '1');
+      localStorage.setItem('kwatlas-introseen:dabudong', '1');
     } catch {
       /* localStorage 불가 환경 무시 */
     }
@@ -55,6 +56,16 @@ test('deep link: day + event restores the event detail panel', async ({ page }) 
 
   // 사건 상세 패널 + 사건 제목(가래목 대포격전)
   await expect(page.locator('.panel-title')).toContainText('가래목 대포격전');
+});
+
+test('dabudong mobile deep link renders map and event detail', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/b/dabudong?day=0818&event=bowling-alley-opening');
+
+  await expect(page.locator('.map-canvas-wrap svg').first()).toBeVisible();
+  await expect(page.locator('.day-rail')).toBeVisible();
+  await expect(page.locator('.panel-title')).toContainText('미 제27연대 반격 개시');
+  await expect(page).toHaveURL(/\/b\/dabudong\?day=0818&event=bowling-alley-opening/);
 });
 
 test('legacy redirect: /?day=&event= becomes /b/chuncheon', async ({ page }) => {
