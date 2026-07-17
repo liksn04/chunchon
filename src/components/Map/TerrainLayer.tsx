@@ -68,12 +68,13 @@ function TerrainLayer({
       const se = project(projection, [reliefBbox.ne[0], reliefBbox.sw[1]]);
       reliefRect = { x: nw[0], y: nw[1], w: se[0] - nw[0], h: se[1] - nw[1] };
     }
+    const hasBoundary38 = boundary38.length >= 2;
     return {
       rivers: rivers.map((r) => ({ id: r.id, name: r.name, d: lineToSmoothPath(projection, r.coordinates), coords: r.coordinates })),
       roads: roads.map((r) => ({ id: r.id, name: r.name, d: lineToSmoothPath(projection, r.coordinates), coords: r.coordinates })),
       relief: reliefRect,
-      b38: lineToPath(projection, boundary38),
-      b38a: project(projection, boundary38[0]),
+      b38: hasBoundary38 ? lineToPath(projection, boundary38) : null,
+      b38a: hasBoundary38 ? project(projection, boundary38[0]) : null,
       points: terrainPoints.map((p) => ({ p, xy: project(projection, p.coord) })),
     };
   }, [projection, terrainPoints, terrainLines, boundary38, reliefBbox]);
@@ -123,20 +124,24 @@ function TerrainLayer({
         />
       ))}
 
-      {/* 38선 */}
-      <path
-        d={geo.b38}
-        fill="none"
-        stroke="var(--ink)"
-        strokeWidth={1.3}
-        strokeDasharray="12 5 3 5"
-        vectorEffect="non-scaling-stroke"
-      />
-      <g transform={`translate(${geo.b38a[0].toFixed(1)},${geo.b38a[1].toFixed(1)}) scale(${s})`}>
-        <text className="map-label map-label--mono" x={6} y={-5} fontSize={10}>
-          38°N — 38선
-        </text>
-      </g>
+      {/* 전투권에 38선이 포함되는 경우에만 표시 */}
+      {geo.b38 && geo.b38a && (
+        <>
+          <path
+            d={geo.b38}
+            fill="none"
+            stroke="var(--ink)"
+            strokeWidth={1.3}
+            strokeDasharray="12 5 3 5"
+            vectorEffect="non-scaling-stroke"
+          />
+          <g transform={`translate(${geo.b38a[0].toFixed(1)},${geo.b38a[1].toFixed(1)}) scale(${s})`}>
+            <text className="map-label map-label--mono" x={6} y={-5} fontSize={10}>
+              38°N — 38선
+            </text>
+          </g>
+        </>
+      )}
 
       {showLabels && (
         <g>
