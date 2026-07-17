@@ -22,6 +22,8 @@ interface BattleState {
   /** 로드된 전투 번들 (파생 lookup·briefScript·dayOrder 포함) */
   battle: BattleBundle | null;
   battleLoading: boolean;
+  /** 전투 데이터 로드 실패 시 실패한 전투 id, 아니면 null */
+  battleError: string | null;
   selectedDay: DayKey;
   selectedEventId: string | null;
   selectedUnitId: string | null;
@@ -69,6 +71,7 @@ export const useBattleStore = create<BattleState>((set, get) => ({
   battleId: null,
   battle: null,
   battleLoading: false,
+  battleError: null,
   selectedDay: 'all',
   selectedEventId: null,
   selectedUnitId: null,
@@ -88,20 +91,28 @@ export const useBattleStore = create<BattleState>((set, get) => ({
   // 전투 로드 → 번들 조립 + 세션 리셋 (layers/theme/lang은 유지)
   loadBattle: async (id) => {
     if (get().battleId === id && get().battle) return;
-    set({ battleId: id, battleLoading: true });
-    const bundle = await loadBattleData(id);
-    // 경합 가드: 로드 도중 battleId가 바뀌면 stale 결과 무시
-    if (get().battleId !== id) return;
-    set({
-      battle: bundle,
-      battleLoading: false,
-      selectedDay: 'all',
-      selectedEventId: null,
-      selectedUnitId: null,
-      selectedEquipId: null,
-      briefIndex: null,
-      scrub: null,
-    });
+    set({ battleId: id, battleLoading: true, battleError: null });
+    try {
+      const bundle = await loadBattleData(id);
+      // 경합 가드: 로드 도중 battleId가 바뀌면 stale 결과 무시
+      if (get().battleId !== id) return;
+      set({
+        battle: bundle,
+        battleLoading: false,
+        battleError: null,
+        selectedDay: 'all',
+        selectedEventId: null,
+        selectedUnitId: null,
+        selectedEquipId: null,
+        briefIndex: null,
+        scrub: null,
+      });
+    } catch (err) {
+      // 동적 import·로더 실패 → 재시도 UI로 노출 (stale 가드 유지)
+      if (get().battleId !== id) return;
+      console.error(`Failed to load battle "${id}"`, err);
+      set({ battle: null, battleLoading: false, battleError: id });
+    }
   },
   // 수동 날짜 선택은 브리핑을 멈춘다
   setDay: (d) => set({ selectedDay: d, selectedEventId: null, briefIndex: null }),

@@ -11,6 +11,7 @@ import TitleIntro from './components/Onboarding/TitleIntro';
 import { useBattleStore } from './store/useBattleStore';
 import { battleById } from './battles/registry';
 import { navigate } from './router';
+import { useT } from './i18n';
 
 /** 날짜를 한 칸 이동 ('전체' ↔ 각 날짜) */
 function stepDay(dir: 1 | -1) {
@@ -37,26 +38,32 @@ function resolveDayParam(param: string, dates: string[]): string | null {
 }
 
 export default function BattleView({ battleId }: { battleId: string }) {
+  const t = useT();
   const battle = useBattleStore((s) => s.battle);
   const loadBattle = useBattleStore((s) => s.loadBattle);
+  const battleError = useBattleStore((s) => s.battleError);
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const selectedEventId = useBattleStore((s) => s.selectedEventId);
   const briefIndex = useBattleStore((s) => s.briefIndex);
   const advanceBrief = useBattleStore((s) => s.advanceBrief);
 
-  // 알 수 없거나 아직 데이터 없는(planned) 전투 → 목록으로
   const meta = battleById.get(battleId);
-  const unavailable = !meta || meta.status === 'planned';
+  // 알 수 없는 id → 안내 화면(자동 이동 없이 URL 유지) · planned → 목록으로
+  const notFound = !meta;
+  const planned = !!meta && meta.status === 'planned';
 
   useEffect(() => {
-    if (unavailable) {
+    // planned 전투는 목록에서 링크되지 않으므로 조용히 목록으로 되돌린다
+    if (planned) {
       navigate('/');
       return;
     }
+    if (notFound) return; // 안내 화면 표시, 로드하지 않음
     loadBattle(battleId);
-  }, [battleId, loadBattle, unavailable]);
+  }, [battleId, loadBattle, notFound, planned]);
 
   const ready = !!battle && battle.meta.id === battleId;
+  const loadFailed = battleError === battleId;
 
   /* 브리핑 진행 타이머: 날짜 인트로 3초, 사건 5.6초 */
   useEffect(() => {
@@ -130,8 +137,57 @@ export default function BattleView({ battleId }: { battleId: string }) {
     if (Math.abs(dx) > 55 && Math.abs(dy) < 45) stepDay(dx < 0 ? 1 : -1);
   };
 
-  // 전투 번들 로드 전에는 지도 표면 색만 채운 채 대기
-  if (unavailable || !ready) {
+  // 알 수 없는 전투 id → 안내 화면 (URL은 /b/:id 그대로 유지)
+  if (notFound) {
+    return (
+      <div className="battle-notice" role="alert">
+        <div className="battle-notice-card">
+          <div className="battle-notice-kicker">404 · 상황도</div>
+          <h1 className="battle-notice-title">{t('battle.notFound')}</h1>
+          <p className="battle-notice-id">/b/{battleId}</p>
+          <button
+            type="button"
+            className="battle-notice-btn"
+            onClick={() => navigate('/')}
+          >
+            {t('battle.toIndex')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 전투 데이터 로드 실패 → 재시도 UI
+  if (loadFailed) {
+    return (
+      <div className="battle-notice" role="alert">
+        <div className="battle-notice-card">
+          <div className="battle-notice-kicker">ERROR · 상황도</div>
+          <h1 className="battle-notice-title">{t('battle.loadError')}</h1>
+          <p className="battle-notice-id">/b/{battleId}</p>
+          <div className="battle-notice-actions">
+            <button
+              type="button"
+              className="battle-notice-btn"
+              onClick={() => loadBattle(battleId)}
+            >
+              {t('battle.retry')}
+            </button>
+            <button
+              type="button"
+              className="battle-notice-btn battle-notice-btn--ghost"
+              onClick={() => navigate('/')}
+            >
+              {t('battle.toIndex')}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // planned 전투 리다이렉트 대기 또는 전투 번들 로드 전 → 지도 표면 색만 채운 채 대기
+  if (planned || !ready) {
     return <div className="app-body app-body--loading" aria-busy="true" />;
   }
 

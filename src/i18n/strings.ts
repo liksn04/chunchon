@@ -14,6 +14,21 @@ export const strings: Record<string, { ko: string; en: string }> = {
   'app.lang': { ko: 'EN', en: '한국어' },
   'app.title': { ko: '6·25 전쟁 전투 상황도', en: 'Korean War Battle Atlas' },
 
+  'error.title': { ko: '오류가 발생했습니다', en: 'Something went wrong' },
+  'error.body': {
+    ko: '상황도를 표시하는 중 문제가 발생했습니다. 페이지를 새로고침하면 대개 해결됩니다.',
+    en: 'A problem occurred while rendering the map. Reloading the page usually resolves it.',
+  },
+  'error.reload': { ko: '새로고침', en: 'Reload' },
+
+  'battle.loadError': {
+    ko: '전투 데이터를 불러오지 못했습니다',
+    en: 'Could not load the battle data',
+  },
+  'battle.retry': { ko: '다시 시도', en: 'Retry' },
+  'battle.toIndex': { ko: '목록으로', en: 'Back to list' },
+  'battle.notFound': { ko: '해당 전투를 찾을 수 없습니다', en: 'Battle not found' },
+
   'index.subtitle': {
     ko: '주요 전투를 골라 상황도를 여세요',
     en: 'Choose a battle to open its situation map',

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import BattleView from './BattleView';
 import BattleIndex from './components/Index/BattleIndex';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useRoute } from './router';
 import { battleById } from './battles/registry';
 import { useBattleStore } from './store/useBattleStore';
@@ -30,6 +31,13 @@ export default function AppShell() {
 
   const battleMeta = route.kind === 'battle' ? battleById.get(route.id) : undefined;
   const onBattle = !!battleMeta;
+
+  // 라우트·언어 변경 시 문서 제목 갱신
+  // 목록: '6·25 전쟁 전투 상황도' · 전투: '<전투명> — 6·25 전쟁 전투 상황도'
+  useEffect(() => {
+    const base = t('app.title');
+    document.title = battleMeta ? `${battleMeta.name[lang]} — ${base}` : base;
+  }, [battleMeta, lang, t]);
 
   return (
     <div className="app">
@@ -65,11 +73,13 @@ export default function AppShell() {
         </div>
       </header>
 
-      {route.kind === 'battle' ? (
-        <BattleView key={route.id} battleId={route.id} />
-      ) : (
-        <BattleIndex />
-      )}
+      <ErrorBoundary key={route.kind === 'battle' ? route.id : 'index'}>
+        {route.kind === 'battle' ? (
+          <BattleView key={route.id} battleId={route.id} />
+        ) : (
+          <BattleIndex />
+        )}
+      </ErrorBoundary>
     </div>
   );
 }

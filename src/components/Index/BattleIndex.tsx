@@ -160,7 +160,7 @@ export default function BattleIndex() {
             {SEA_LABELS.map(({ key, coord }) => {
               const [sx, sy] = toXY(coord);
               return (
-                <text key={key} className="index-sea-label" x={sx} y={sy} textAnchor="middle">
+                <text key={key} className="index-sea-label" x={sx} y={sy} textAnchor="middle" aria-hidden="true">
                   {t(key)}
                 </text>
               );
@@ -245,7 +245,7 @@ export default function BattleIndex() {
                   <line x1={x} y1={MAP_H - FRAME} x2={x} y2={MAP_H - FRAME - len} className="index-frame-tick" />
                   {/* 상단 눈금 라벨은 카투시와 겹치므로 하단에만 표기 */}
                   {labeled && (
-                    <text x={x} y={MAP_H - FRAME - 6} textAnchor="middle" className="index-frame-label">
+                    <text x={x} y={MAP_H - FRAME - 6} textAnchor="middle" className="index-frame-label" aria-hidden="true">
                       {lng}°E
                     </text>
                   )}
@@ -262,7 +262,7 @@ export default function BattleIndex() {
                   <line x1={FRAME} y1={y} x2={FRAME + len} y2={y} className="index-frame-tick" />
                   <line x1={MAP_W - FRAME} y1={y} x2={MAP_W - FRAME - len} y2={y} className="index-frame-tick" />
                   {labeled && (
-                    <text x={FRAME + 8} y={y - 3} textAnchor="start" className="index-frame-label">
+                    <text x={FRAME + 8} y={y - 3} textAnchor="start" className="index-frame-label" aria-hidden="true">
                       {lat}°N
                     </text>
                   )}

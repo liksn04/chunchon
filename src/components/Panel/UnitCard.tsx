@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { equipmentById } from '../../data/shared/equipment';
 import { useBattleStore } from '../../store/useBattleStore';
@@ -66,6 +66,7 @@ export default function UnitCard() {
   const selectEquip = useBattleStore((s) => s.selectEquip);
   const unitById = useBattle().unitById;
   const u = selectedUnitId ? unitById.get(selectedUnitId) : undefined;
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!selectedUnitId) return;
@@ -76,11 +77,17 @@ export default function UnitCard() {
       }
     };
     window.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // 접근성: 대화상자로 포커스 이동, 닫힐 때 이전 요소로 복원
+    const prevFocus = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus({ preventScroll: true });
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevOverflow;
+      if (prevFocus && document.contains(prevFocus)) {
+        prevFocus.focus({ preventScroll: true });
+      }
     };
   }, [selectedUnitId, selectUnit]);
 
@@ -92,6 +99,8 @@ export default function UnitCard() {
     <div className="person-backdrop" onClick={() => selectUnit(null)}>
       <div
         className={`dossier dossier--${u.faction}`}
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label={`${u.designation} 부대 기록`}

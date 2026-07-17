@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { personById } from '../../data/shared/people';
 import { sourceById } from '../../data/shared/sources';
 import type { CoordConfidence } from '../../data/battles/chuncheon/geo';
@@ -34,6 +34,19 @@ export default function EventDetailPanel({ eventId }: { eventId: string }) {
   const { eventById, unitById, eventPeople, eventSources, coordNotes, footnotesByEvent } =
     useBattle();
   const [openPerson, setOpenPerson] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // 접근성: 상세 패널이 열리면 컨테이너로 포커스를 옮기고(스크롤 보존),
+  // 닫힐 때 이전 포커스 요소가 DOM에 남아 있으면 되돌린다.
+  useEffect(() => {
+    const prev = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus({ preventScroll: true });
+    return () => {
+      if (prev && document.contains(prev)) prev.focus({ preventScroll: true });
+    };
+    // eventId가 바뀌면 새 사건으로 포커스 재이동
+  }, [eventId]);
+
   const ev = eventById.get(eventId);
   if (!ev) return null;
 
@@ -56,7 +69,13 @@ export default function EventDetailPanel({ eventId }: { eventId: string }) {
   };
 
   return (
-    <div className="panel-inner">
+    <div
+      className="panel-inner"
+      ref={panelRef}
+      tabIndex={-1}
+      role="region"
+      aria-label={ev.title}
+    >
       <button
         type="button"
         className="close-btn"
