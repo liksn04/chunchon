@@ -1,9 +1,10 @@
 import type { BattleData, BattleMeta } from '../types';
 import { makeBundle, type BattleBundle } from './bundle';
 import { chuncheonMeta } from '../data/battles/chuncheon/meta';
+import { plannedMetas } from '../data/battles/planned';
 
-/** 목록·마커용 메타는 eager 로드 (Stage 3에서 planned 전투 추가) */
-export const battleMetas: BattleMeta[] = [chuncheonMeta];
+/** 목록·마커용 메타는 eager 로드. 시간순(개전→정전) 정렬 — 목록·지도 표시 순서의 기준 */
+export const battleMetas: BattleMeta[] = [chuncheonMeta, ...plannedMetas];
 
 /** id → 메타 조회 */
 export const battleById = new Map(battleMetas.map((m) => [m.id, m]));

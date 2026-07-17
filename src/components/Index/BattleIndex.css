@@ -1,10 +1,197 @@
-.index-main {
+/* ───────── 목록 레이아웃 — 좌/상단 지도 + 우/하단 카드 목록 ───────── */
+.index-layout {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  padding: 20px clamp(16px, 4vw, 48px) 48px;
+  display: flex;
   background: var(--map-buff);
   color: var(--ink);
+}
+
+.index-map-pane {
+  flex: 0 0 38%;
+  max-width: 480px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 16px;
+  border-right: 2px solid var(--ink);
+  background: var(--map-buff-deep);
+}
+
+.index-map-svg {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  aspect-ratio: 320 / 380;
+}
+
+.index-map-outline {
+  fill: var(--panel-paper);
+  stroke: var(--ink-soft);
+  stroke-width: 1.4;
+}
+
+.index-map-38line {
+  stroke: var(--ink);
+  stroke-width: 1.1;
+  stroke-dasharray: 5 3;
+  opacity: 0.6;
+}
+
+.index-map-hint {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+/* ── 마커 ── */
+.index-marker {
+  cursor: pointer;
+  outline: none;
+}
+
+.index-marker:focus-visible .index-marker-dot {
+  outline: 2px solid var(--amber-deep);
+  outline-offset: 2px;
+}
+
+.index-marker-dot {
+  stroke: var(--map-buff);
+  stroke-width: 1;
+  transition: r 0.12s ease;
+}
+
+.index-marker--invasion .index-marker-dot,
+.index-marker--invasion .index-marker-pulse {
+  fill: var(--phase-invasion);
+}
+.index-marker--naktong .index-marker-dot,
+.index-marker--naktong .index-marker-pulse {
+  fill: var(--phase-naktong);
+}
+.index-marker--counter .index-marker-dot,
+.index-marker--counter .index-marker-pulse {
+  fill: var(--phase-counter);
+}
+.index-marker--ccf .index-marker-dot,
+.index-marker--ccf .index-marker-pulse {
+  fill: var(--phase-ccf);
+}
+.index-marker--stalemate .index-marker-dot,
+.index-marker--stalemate .index-marker-pulse {
+  fill: var(--phase-stalemate);
+}
+
+.index-marker--planned .index-marker-dot {
+  opacity: 0.62;
+}
+
+.index-marker-pulse {
+  transform-origin: center;
+  transform-box: fill-box;
+  opacity: 0.55;
+  animation: index-marker-breathe 2.2s ease-in-out infinite;
+}
+
+@keyframes index-marker-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(2.3);
+  }
+}
+
+.index-marker--dim {
+  opacity: 0.22;
+}
+
+.index-marker--active .index-marker-dot {
+  r: 6.4;
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+
+.index-marker-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--map-buff);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .index-marker-pulse {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ── 목록 영역 ── */
+.index-list-pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.index-filters {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px clamp(16px, 4vw, 48px) 10px;
+  background: var(--map-buff);
+  border-bottom: 1px solid var(--ink-faint);
+}
+
+.index-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.index-filter-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  flex: none;
+}
+
+.index-filter-chip--invasion .index-filter-dot {
+  background: var(--phase-invasion);
+}
+.index-filter-chip--naktong .index-filter-dot {
+  background: var(--phase-naktong);
+}
+.index-filter-chip--counter .index-filter-dot {
+  background: var(--phase-counter);
+}
+.index-filter-chip--ccf .index-filter-dot {
+  background: var(--phase-ccf);
+}
+.index-filter-chip--stalemate .index-filter-dot {
+  background: var(--phase-stalemate);
+}
+
+.index-groups {
+  padding: 16px clamp(16px, 4vw, 48px) 48px;
 }
 
 .index-phase {
@@ -37,25 +224,47 @@
   padding: 14px 16px;
   background: var(--panel-paper);
   border: 1px solid var(--ink-faint);
-  border-left: 3px solid var(--rok);
+  border-left: 3px solid var(--ink-faint);
   border-radius: 4px;
   color: inherit;
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
 
-.index-card:hover:not(:disabled),
+.index-card--invasion {
+  border-left-color: var(--phase-invasion);
+}
+.index-card--naktong {
+  border-left-color: var(--phase-naktong);
+}
+.index-card--counter {
+  border-left-color: var(--phase-counter);
+}
+.index-card--ccf {
+  border-left-color: var(--phase-ccf);
+}
+.index-card--stalemate {
+  border-left-color: var(--phase-stalemate);
+}
+
+.index-card:hover,
 .index-card:focus-visible {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-  border-color: var(--rok);
   outline: none;
 }
 
+.index-card--active {
+  box-shadow: 0 0 0 2px var(--amber-deep), 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
 .index-card--planned {
-  border-left-color: var(--ink-faint);
-  opacity: 0.68;
-  cursor: default;
+  opacity: 0.72;
+}
+
+.index-card--planned:hover,
+.index-card--planned:focus-visible {
+  opacity: 0.92;
 }
 
 .index-card-head {
@@ -107,4 +316,44 @@
   font-weight: 700;
   color: var(--rok);
   margin-top: auto;
+}
+
+/* ───────── 반응형: 좁은 화면은 지도 위 / 목록 아래로 스택 ───────── */
+@media (max-width: 860px) {
+  .index-layout {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .index-map-pane {
+    flex: 0 0 auto;
+    max-width: none;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 2px solid var(--ink);
+    padding: 16px;
+  }
+
+  .index-map-svg {
+    max-width: 280px;
+  }
+
+  .index-list-pane {
+    overflow-y: visible;
+    flex: none;
+  }
+
+  .index-filters {
+    position: static;
+  }
+}
+
+@media (max-width: 520px) {
+  .index-map-svg {
+    max-width: 220px;
+  }
+
+  .index-card-name {
+    font-size: 14.5px;
+  }
 }

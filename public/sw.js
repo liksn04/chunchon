@@ -1,5 +1,5 @@
-/* 춘천 1950 — 오프라인 캐시 서비스워커 */
-const CACHE = 'chuncheon1950-v1';
+/* 6·25 전쟁 전투 상황도 — 오프라인 캐시 서비스워커 */
+const CACHE = 'kwatlas-v2';
 const CORE = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg', '/og.png'];
 
 self.addEventListener('install', (e) => {

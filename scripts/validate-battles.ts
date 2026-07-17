@@ -281,18 +281,14 @@ function validateBattle(data: BattleBundle): Reporter {
   }
 
   // ── relief 래스터 파일 존재 ──
-  // NOTE: 스펙상 "누락 시 오류"이지만, 현재 저장소는 A8(에셋 재배치:
-  // public/relief-*.png → public/relief/<id>-*.png)이 아직 반영되지 않았고
-  // 이 스크립트의 쓰기 범위는 scripts/·docs/·package.json 뿐이라 자산을
-  // 직접 옮길 수 없다. 그래서 지금은 WARN으로 낮춰 두되, A8이 landed되면
-  // (아래 조건을 ERROR로 되돌리면) 이후엔 진짜 오탈자/누락을 잡아준다.
+  // A8(에셋 재배치: public/relief-*.png → public/relief/<id>-*.png)이 반영된
+  // 이후이므로 누락은 실제 오탈자/누락 버그로 보고 ERROR로 취급한다.
   if (meta.relief) {
     for (const [tone, rel] of Object.entries(meta.relief)) {
       const abs = path.join(PUBLIC_DIR, rel.replace(/^\//, ''));
       if (!existsSync(abs)) {
-        r.warn(
-          `meta.relief.${tone} = '${rel}' 파일이 public/ 아래에 없습니다 (${path.relative(REPO_ROOT, abs)}). ` +
-            `A8(에셋 재배치)이 아직 반영되지 않았다면 예상된 상태입니다 — 반영 후에도 계속 뜨면 실제 누락입니다.`,
+        r.error(
+          `meta.relief.${tone} = '${rel}' 파일이 public/ 아래에 없습니다 (${path.relative(REPO_ROOT, abs)}).`,
         );
       }
     }
