@@ -195,6 +195,15 @@ export type CoordConfidence = 'confirmed' | 'offset' | 'estimated';
    ```bash
    gdaldem hillshade dem.tif hillshade.tif -z 2 -az 315 -alt 45
    ```
+
+   > **지름길 — `npm run relief:make <battle-id>`**: GIS 없이도 위 1~4단계를
+   > 한 번에 수행하는 스크립트가 있다. AWS 공개 표고 타일(terrarium, z12)을
+   > `meta.reliefBbox` 범위로 수집해 Horn 힐셰이드를 계산하고, 춘천 래스터의
+   > 명암 팔레트를 샘플링해 라이트/다크 PNG를 `public/relief/`에 출력한다
+   > (웹 메르카토르 타일이므로 reliefBbox와 자동 정합). 출력 후
+   > `npm run relief:webp` → `meta.relief` 연결 순서는 동일하다. 다부동
+   > 래스터가 이 방식으로 제작되었다. 더 높은 해상도·수체 마스킹 등이
+   > 필요할 때만 아래 GIS 수동 절차를 쓰면 된다.
 3. **톤 매칭 — 라이트/다크 두 벌** — 앱은 테마 토글이 있으므로 각 테마에 맞는
    버전을 따로 만든다. 배경색은 `src/styles/tokens.css`의 `--map-buff`
    팔레트에 맞춘다:
