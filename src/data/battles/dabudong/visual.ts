@@ -44,7 +44,7 @@ export const terrainPointLabels: Record<string, MapLabelPlacement> = {
   nakjeong: { text: '낙정리', dx: -10, dy: -10, anchor: 'end', minZoom: 1.7 },
   'sangju-road': { text: '상주 방면', dx: -8, dy: -10, anchor: 'end', minZoom: 1.4 },
   yuhaksan: { text: '유학산 839', dx: -18, dy: -16, anchor: 'end', leader: true, minZoom: 1.4 },
-  gasan: { text: '가산 902', dx: 6, dy: -14, anchor: 'start', leader: true },
+  gasan: { text: '가산 902', dx: 6, dy: 22, anchor: 'start', leader: true, minZoom: 1.2 },
   suamsan: { text: '수암산 518', dx: 16, dy: 14, anchor: 'start', minZoom: 1.7 },
   hill328: { text: '328고지', dx: -14, dy: 14, anchor: 'end', minZoom: 1.9 },
   hill303: { text: '303고지', dx: -12, dy: 14, anchor: 'end', minZoom: 2.1 },

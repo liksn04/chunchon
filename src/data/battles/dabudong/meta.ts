@@ -17,8 +17,13 @@ export const dabudongMeta: BattleMeta = {
     ne: [128.70, 36.28],
   },
   reliefBbox: {
+    // 래스터(terrarium z12 → 힐셰이드)의 실제 크롭 범위와 정확히 일치 — 변경 금지
     sw: [128.05, 35.68],
     ne: [128.94, 36.42],
+  },
+  relief: {
+    light: '/relief/dabudong-light.webp',
+    dark: '/relief/dabudong-dark.webp',
   },
   cartouche: {
     title: '다부동 전투 상황도',
