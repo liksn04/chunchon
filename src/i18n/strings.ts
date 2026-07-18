@@ -41,6 +41,7 @@ export const strings: Record<string, { ko: string; en: string }> = {
   'index.filterLabel': { ko: '국면 필터', en: 'Filter by phase' },
   'index.mapLabel': { ko: '6·25 전쟁 전투 지도', en: 'Korean War battle map' },
   'index.mapHint': { ko: '마커를 클릭하면 목록과 연동됩니다', en: 'Click a marker to sync with the list' },
+  'index.frontSlider': { ko: '전황 시기 이동', en: 'Scrub the war timeline' },
   'index.cartTitle': { ko: '6·25 전쟁 전역도', en: 'Korean Theater' },
   'index.cartSub': { ko: 'KOREAN THEATER OF OPERATIONS', en: 'THEATER OF OPERATIONS' },
   'index.seaEast': { ko: '동   해', en: 'EAST SEA' },

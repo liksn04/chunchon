@@ -186,6 +186,66 @@
   stroke-width: 0.9;
 }
 
+/* ── 전황(점령 양상) 오버레이 ── */
+.index-occ-rok {
+  fill: var(--rok);
+  opacity: 0.10;
+}
+
+.index-occ-nk {
+  fill: var(--nk);
+  opacity: 0.17;
+}
+
+.index-frontline {
+  fill: none;
+  stroke: var(--nk);
+  stroke-width: 1.6;
+  stroke-dasharray: 7 3;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+
+:root[data-theme='dark'] .index-occ-rok {
+  opacity: 0.16;
+}
+
+:root[data-theme='dark'] .index-occ-nk {
+  opacity: 0.26;
+}
+
+/* ── 전황 스크러버 ── */
+.index-front-control {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.index-front-label {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.index-front-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--amber-deep);
+}
+
+.index-front-slider {
+  width: 100%;
+  accent-color: var(--nk);
+  cursor: pointer;
+}
+
 .index-map-hint {
   margin: 0;
   font-family: var(--font-mono);

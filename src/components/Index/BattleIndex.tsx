@@ -4,7 +4,8 @@ import { navigate } from '../../router';
 import { useT } from '../../i18n';
 import { useBattleStore } from '../../store/useBattleStore';
 import { koreaOutline, jejuOutline, LAT38_LNG, makeKoreaToXY } from '../../data/shared/korea';
-import type { Pt } from '../../lib/morph';
+import { warFrontStages, stageIndexByPhase } from '../../data/shared/warfront';
+import { resamplePolyline, lerpPolyline, type Pt } from '../../lib/morph';
 import type { BattleMeta, WarPhase } from '../../types';
 import './BattleIndex.css';
 
@@ -53,6 +54,33 @@ function labelWidth(label: string): number {
 const closedPath = (pts: Pt[]): string =>
   `M${pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join('L')}Z`;
 
+const openPath = (pts: Pt[]): string =>
+  `M${pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join('L')}`;
+
+/** 전황 전선을 화면 좌표로 리샘플(단계 간 보간을 위해 점 개수 통일) */
+const FRONT_SAMPLES = 56;
+const stageLines: Pt[][] = warFrontStages.map((st) =>
+  resamplePolyline(st.line.map(toXY), FRONT_SAMPLES),
+);
+
+/** t(0~단계수-1) 위치의 보간 전선 */
+function frontAt(t: number): Pt[] {
+  const i = Math.max(0, Math.min(stageLines.length - 1, t));
+  const a = Math.floor(i);
+  const b = Math.min(stageLines.length - 1, a + 1);
+  return lerpPolyline(stageLines[a], stageLines[b], i - a);
+}
+
+/** 전선 북쪽(적 점령)을 덮는 닫힌 폴리곤 — 육지 clipPath로 잘라 쓴다 */
+function northPolygon(line: Pt[]): string {
+  const first = line[0];
+  const last = line[line.length - 1];
+  const top = -40; // 뷰박스 위쪽 밖
+  const west = -40;
+  const east = MAP_W + 40;
+  return `${openPath(line)} L${east},${last[1].toFixed(1)} L${east},${top} L${west},${top} L${west},${first[1].toFixed(1)} Z`;
+}
+
 /** 'YYYY-MM-DD'~'YYYY-MM-DD' → '1950.6.25–7.1' 압축 표기(동일 연/월이면 생략) */
 function formatDateRange(start: string, end: string): string {
   const [sy, sm, sd] = start.split('-').map(Number);
@@ -71,6 +99,7 @@ export default function BattleIndex() {
   const t = useT();
   const lang = useBattleStore((s) => s.lang);
   const [filter, setFilter] = useState<WarPhase | 'all'>('all');
+  const [stage, setStage] = useState(0);
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
@@ -84,6 +113,8 @@ export default function BattleIndex() {
   }, [selectedId]);
 
   const activeMeta = activeId ? battleMetas.find((m) => m.id === activeId) ?? null : null;
+  const frontLine = frontAt(stage);
+  const currentStage = warFrontStages[Math.round(stage)];
   const silhouette = closedPath(koreaOutline.map(toXY));
   const jeju = closedPath(jejuOutline.map(toXY));
   // 38선은 반도 폭(해안 교차 경도)에 약간의 여유만 두고 그린다
@@ -100,6 +131,8 @@ export default function BattleIndex() {
 
   const toggleFilter = (phase: WarPhase) => {
     setFilter((cur) => (cur === phase ? 'all' : phase));
+    const idx = stageIndexByPhase[phase];
+    if (idx !== undefined) setStage(idx);
   };
 
   const groups = PHASE_ORDER.map((phase) => ({
@@ -125,6 +158,10 @@ export default function BattleIndex() {
             <clipPath id="index-plate">
               <rect x={FRAME} y={FRAME} width={MAP_W - 2 * FRAME} height={MAP_H - 2 * FRAME} />
             </clipPath>
+            <clipPath id="index-land">
+              <path d={silhouette} />
+              <path d={jeju} />
+            </clipPath>
           </defs>
 
           {/* ── 해양 판(sheet) + 파도 텍스처 ── */}
@@ -149,6 +186,14 @@ export default function BattleIndex() {
             {/* ── 육지 ── */}
             <path d={silhouette} className="index-map-outline" />
             <path d={jeju} className="index-map-outline" />
+
+            {/* ── 전황(점령 양상) — 아군 청색 바탕 + 전선 이북 적색 ── */}
+            <g clipPath="url(#index-land)" pointerEvents="none">
+              <path d={silhouette} className="index-occ-rok" />
+              <path d={jeju} className="index-occ-rok" />
+              <path d={northPolygon(frontLine)} className="index-occ-nk" />
+              <path d={openPath(frontLine)} className="index-frontline" />
+            </g>
 
             {/* 38선 + 라벨 */}
             <line x1={x38a} y1={y38a} x2={x38b} y2={y38b} className="index-map-38line" />
@@ -319,6 +364,42 @@ export default function BattleIndex() {
               );
             })()}
         </svg>
+
+        {/* ── 전황 스크러버 — 개전(38선)→낙동강→북진→후퇴→고착→정전 ── */}
+        <div className="index-front-control">
+          <div className="index-front-label" aria-live="polite">
+            <span className="index-front-date">{currentStage.date}</span>
+            {currentStage.label[lang]}
+          </div>
+          <input
+            className="index-front-slider"
+            type="range"
+            min={0}
+            max={warFrontStages.length - 1}
+            step={0.02}
+            value={stage}
+            aria-label={t('index.frontSlider')}
+            aria-valuetext={`${currentStage.date} ${currentStage.label[lang]}`}
+            onChange={(e) => setStage(Number(e.target.value))}
+            onPointerUp={() => setStage((v) => Math.round(v))}
+            onKeyDown={(e) => {
+              // 화살표 키는 한 단계씩 점프 (연속 step 0.02는 드래그 전용)
+              if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                setStage((v) => Math.min(warFrontStages.length - 1, Math.round(v) + 1));
+              } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                setStage((v) => Math.max(0, Math.round(v) - 1));
+              }
+            }}
+            list="index-front-ticks"
+          />
+          <datalist id="index-front-ticks">
+            {warFrontStages.map((st, i) => (
+              <option key={st.id} value={i} />
+            ))}
+          </datalist>
+        </div>
         <p className="index-map-hint">{t('index.mapHint')}</p>
       </section>
 

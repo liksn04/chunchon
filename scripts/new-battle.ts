@@ -1,23 +1,31 @@
 /**
  * 새 전투 뼈대 생성 — `npm run battle:new <battle-id>`
- * planned.ts에 등록된 meta를 기반으로 src/data/battles/<id>/ 폴더와
- * 표준 파일 세트(스타일 표준 준수 스텁)를 생성한다.
+ * registry에 meta가 있으면 그 값으로, 없으면(신규 전투) TODO 플레이스홀더로
+ * src/data/battles/<id>/ 표준 파일 세트를 생성한다.
  *
  * 생성 후 수동 절차:
- *  1) planned.ts에서 해당 meta 항목 제거 (meta.ts로 이관됨)
+ *  1) (신규 id였다면) registry.ts battleMetas에 meta import 추가
  *  2) 콘텐츠 저작 (docs/BATTLE-AUTHORING.md 순서)
  *  3) meta.reliefBbox 확정 → `npm run relief:make <id>` → `npm run relief:webp`
- *  4) registry.ts에 loader 등록 + status 'available' 전환 → `npm run validate`
+ *  4) registry.ts loaders 등록 + status 'available' 전환 → `npm run validate`
  */
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { battleMetas } from '../src/battles/registry';
 
 const id = process.argv[2];
-const meta = battleMetas.find((m) => m.id === id);
-if (!id || !meta) {
-  console.error('사용법: npm run battle:new <battle-id> — 등록된 id:', battleMetas.map((m) => m.id).join(', '));
+if (!id || !/^[a-z][a-z0-9-]*$/.test(id)) {
+  console.error('사용법: npm run battle:new <battle-id> (kebab-case)');
   process.exit(1);
 }
+const meta = battleMetas.find((m) => m.id === id) ?? {
+  id,
+  name: { ko: 'TODO', en: 'TODO' },
+  phase: 'invasion' as const,
+  dateRange: { start: 'TODO', end: 'TODO' },
+  marker: [127.5, 37.5] as [number, number],
+  summary: 'TODO',
+  status: 'planned' as const,
+};
 const dir = `src/data/battles/${id}`;
 if (existsSync(dir)) {
   console.error(`${dir} 가 이미 존재합니다.`);
@@ -155,4 +163,4 @@ for (const [file, content] of Object.entries(files)) {
   writeFileSync(`${dir}/${file}`, content);
 }
 console.log(`${dir}/ 생성 완료 (${Object.keys(files).length}개 파일)`);
-console.log('다음: planned.ts에서 meta 제거 → 저작 → relief:make → registry 등록 → validate');
+console.log('다음: (신규 id면 registry에 meta 추가) → 저작 → relief:make → loaders 등록 → validate');
