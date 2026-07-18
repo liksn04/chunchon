@@ -1,10 +1,10 @@
 import { useBattle } from '../../battles/useBattle';
+import type { BattleOverview } from '../../types';
 
 /**
- * 일자별 전선 남하 속도(km/일) 막대그래프.
+ * 일자별 전선 남하 속도(km/일) 막대그래프 — overview.advance 데이터 주도.
  * 각 날짜 전선의 평균 위도로 남하 거리를 구해 전일 대비 증분을 표시한다.
- * 6/25~6/28 "지연 3일" 구간은 하루 5~8km에 그치다가, 국군 철수 뒤 급가속하는
- * 이 전투의 핵심 서사를 한눈에 보여준다. (전선 좌표는 도식적 근사값)
+ * 이동전 서사가 있는 전투만 advance를 제공한다. (전선 좌표는 도식적 근사값)
  */
 const KM_PER_DEG = 111.32;
 const avgLat = (coords: [number, number][]) =>
@@ -17,11 +17,13 @@ const PAD_R = 6;
 const PAD_T = 16;
 const BASE_Y = H - 24;
 
-/** 지연 구간: 국군이 붙들어 하루 남하가 작았던 6/26~6/28 (앞 3개) */
-const DELAY_COUNT = 3;
-
-export default function AdvanceChart() {
+export default function AdvanceChart({
+  advance,
+}: {
+  advance: NonNullable<BattleOverview['advance']>;
+}) {
   const frontLines = useBattle().frontLines;
+  const DELAY_COUNT = advance.delayCount;
 
   const base = avgLat(frontLines[0].coordinates);
   const cumulative = frontLines.map((fl) => (base - avgLat(fl.coordinates)) * KM_PER_DEG);
@@ -36,7 +38,7 @@ export default function AdvanceChart() {
 
   return (
     <figure className="advance-chart">
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="일자별 전선 남하 속도 막대그래프. 6월 26~28일은 하루 5~8km로 정체하다가 국군 철수 이후 급가속한다.">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={advance.ariaLabel}>
         {/* 기준선 */}
         <line x1={PAD_L} y1={BASE_Y} x2={W - PAD_R} y2={BASE_Y} stroke="var(--ink-faint)" strokeWidth={1} />
 
@@ -57,7 +59,7 @@ export default function AdvanceChart() {
           fontFamily="var(--font-mono)"
           fill="var(--amber-deep)"
         >
-          6사단 지연전 ≈ 3일
+          {advance.delayLabel}
         </text>
 
         {daily.map((d, i) => {
@@ -87,8 +89,8 @@ export default function AdvanceChart() {
         })}
       </svg>
       <figcaption>
-        일자별 전선 남하 <b>km/일</b> — 앞 3일은 하루 5~8km로 묶였다가 철수 뒤
-        급가속. 세로축 최댓값 {Math.round(maxKm)}km. <span className="approx-mark">도식 근사</span>
+        {advance.caption} 세로축 최댓값 {Math.round(maxKm)}km.{' '}
+        <span className="approx-mark">도식 근사</span>
       </figcaption>
     </figure>
   );

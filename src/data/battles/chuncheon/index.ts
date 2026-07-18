@@ -7,7 +7,9 @@ import { frontLines } from './frontlines';
 import { units } from './units';
 import { unitPositionsByDate } from './unitPositions';
 import { terrainPoints, terrainLines, boundary38 } from './terrain';
-import { planArrows, PLAN_FAILED_FROM, planNote } from './plans';
+import { planArrows, PLAN_FAILED_FROM, planNote, planStamp } from './plans';
+import { battleOverview } from './overview';
+import { eventLabels } from './visual';
 import { eventCoordNotes } from './geo';
 import { footnotesByEvent } from './footnotes';
 import { eventSources, eventPeople } from './links';
@@ -16,7 +18,8 @@ import { eventSources, eventPeople } from './links';
 export const battle: BattleData = {
   meta: chuncheonMeta,
   days,
-  events,
+  // 전체 보기 큐레이션(visual.ts)을 사건에 병합 — 다부동과 같은 표준 배선
+  events: events.map((event) => ({ ...event, mapLabel: eventLabels[event.id] })),
   movements,
   frontLines,
   units,
@@ -24,7 +27,8 @@ export const battle: BattleData = {
   terrainPoints,
   terrainLines,
   boundary38,
-  plans: { arrows: planArrows, failedFrom: PLAN_FAILED_FROM, note: planNote },
+  plans: { arrows: planArrows, failedFrom: PLAN_FAILED_FROM, note: planNote, stamp: planStamp },
+  overview: battleOverview,
   coordNotes: eventCoordNotes,
   footnotesByEvent,
   eventSources,

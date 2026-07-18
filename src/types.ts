@@ -1,6 +1,11 @@
 import type { UnitPosition } from './data/battles/chuncheon/unitPositions';
 import type { PlanArrow } from './data/battles/chuncheon/plans';
 import type { CoordNote } from './data/battles/chuncheon/geo';
+
+// 전투 저작 스텁에서 쓰도록 재수출 (원 정의는 춘천 모듈)
+export type { UnitPosition } from './data/battles/chuncheon/unitPositions';
+export type { CoordNote } from './data/battles/chuncheon/geo';
+export type { Footnote } from './data/battles/chuncheon/footnotes';
 import type { Footnote } from './data/battles/chuncheon/footnotes';
 
 export type Faction = 'ROK' | 'NK';
@@ -152,15 +157,41 @@ export interface BattleOverview {
   kicker: string;
   rok: string;
   nk: string;
+  /** 표 머리글 재정의 — 기본은 i18n 'panel.rok'/'panel.nk' ('국군'/'북한') */
+  rokHeader?: string;
+  nkHeader?: string;
   result: {
     label: string;
     note: string;
     tone?: 'rok' | 'nk' | 'mixed';
   };
+  /** 헤드라인 박스의 회차 표기 — 'phase' = (국면 N), 'dplus' = (D+N). 기본 phase */
+  dayCounter?: 'phase' | 'dplus';
+  /** 피해 비교 막대 — 사료 수치가 확정된 전투만 제공 */
+  stats?: {
+    rows: {
+      side: 'rok' | 'nk';
+      who: string;
+      value: string;
+      pct: number;                       // 채움 비율(0~100)
+      rangeToPct?: number;               // 집계 편차 상한(빗금 구간 끝)
+      aria: string;
+    }[];
+    note?: string;
+  };
+  /** 전선 이동 속도 차트 — 이동전 서사가 있는 전투만 제공 */
+  advance?: {
+    delayCount: number;                  // 앞쪽 '지연 구간' 막대 수
+    delayLabel: string;                  // 지연 구간 주기(注記)
+    caption: string;
+    ariaLabel: string;
+  };
   sections: {
     title: string;
     paragraphs: string[];
     note?: boolean;
+    /** 문단 뒤에 붙는 출처 링크 (shared/sources 카탈로그 id) */
+    link?: { label: string; sourceId: string };
   }[];
   sourceNote: string;
 }

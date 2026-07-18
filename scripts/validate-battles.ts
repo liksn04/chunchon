@@ -294,6 +294,29 @@ function validateBattle(data: BattleBundle): Reporter {
     }
   }
 
+  // ── 지도 스타일 표준 (docs/MAP-STYLE-GUIDE.md) ──
+  if (!data.overview) {
+    r.error('overview가 없습니다 — 개요 패널이 비게 됩니다 (표준 §개요: overview.ts 필수).');
+  }
+  const curated = data.events.some((e) => e.mapLabel);
+  if (!curated) {
+    r.warn('visual.ts 사건 편집 스키마가 없습니다 — 전체 보기가 큐레이션되지 않습니다 (표준 §전체 보기).');
+  }
+  const labelsAtAll = data.events.filter((e) => e.mapLabel?.showAtAll ?? e.key ?? false).length;
+  if (labelsAtAll > 5) {
+    r.warn(`전체 보기 사건 라벨이 ${labelsAtAll}개입니다 (표준 §전체 보기: ≤5).`);
+  }
+  const pathsAtAll = data.movements.filter((m) => m.mapLabel?.showPathAtAll ?? true).length;
+  if (pathsAtAll > 4) {
+    r.warn(`전체 보기 이동축이 ${pathsAtAll}개입니다 (표준 §전체 보기: ≤4, 스키마 전투는 ≤3 권장).`);
+  }
+  if (data.plans?.stamp && bbox && !inBbox(data.plans.stamp.coord, bbox)) {
+    r.warn(`plans.stamp 좌표가 meta.bbox 밖입니다 — 기본 화면에서 스탬프가 보이지 않습니다.`);
+  }
+  if (!meta.relief) {
+    r.warn('meta.relief가 없습니다 — 음영기복 없이 출시하려면 표준 §지형의 예외 요건을 충족해야 합니다 (relief:make 사용 권장).');
+  }
+
   return r;
 }
 

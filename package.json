@@ -11,7 +11,8 @@
     "test:e2e": "npm run build && playwright test",
     "validate": "tsx scripts/validate-battles.ts",
     "relief:webp": "tsx scripts/convert-relief.ts",
-    "relief:make": "tsx scripts/make-relief.ts"
+    "relief:make": "tsx scripts/make-relief.ts",
+    "battle:new": "tsx scripts/new-battle.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",

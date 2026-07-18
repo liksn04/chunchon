@@ -1,5 +1,11 @@
 # 전투 저작 가이드 — 새 전투를 추가하는 방법
 
+> **먼저 읽을 것**: 시각 규범은 [`MAP-STYLE-GUIDE.md`](./MAP-STYLE-GUIDE.md)가
+> 규정한다(전체 보기 큐레이션, 라벨 규칙, 프레이밍, 개요 패널 표준 등).
+> 새 전투는 `npm run battle:new <id>`로 표준 파일 14종을 생성한 뒤 이 문서의
+> 순서대로 채운다. 음영기복은 `npm run relief:make <id>` → `npm run relief:webp`.
+
+
 이 문서는 `src/data/battles/<id>/` 아래에 새 전투 하나를 처음부터 완성해
 `planned` → `available` 로 승격하기까지의 절차를 다룬다. 엔진(지도·타임라인·
 브리핑·모핑)은 이미 데이터 주도로 짜여 있으므로, 전투 콘텐츠 하나를 추가하는
