@@ -1,9 +1,10 @@
-import { days } from '../../data/days';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import { useT } from '../../i18n';
 
 export default function DayRail() {
   const t = useT();
+  const days = useBattle().days;
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const scrub = useBattleStore((s) => s.scrub);
   const playing = useBattleStore((s) => s.briefIndex !== null);

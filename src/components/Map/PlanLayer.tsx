@@ -1,30 +1,35 @@
 import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project, lineToSmoothPath } from '../../lib/projection';
-import { planArrows, PLAN_FAILED_FROM } from '../../data/plans';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
+import type { LngLat } from '../../types';
 
-/**
- * 유령 포위망 — 북한 2군단의 실현되지 못한 계획선.
- * 항상 반투명 점선으로 깔리고, 6/28 이후엔 ✕ 표시와 "포위계획 무산" 스탬프가 찍힌다.
- */
+/** 실현되지 못한 작전 기도와 실패 시점을 전투별 데이터로 표현한다. */
 function PlanLayer({ projection, k = 1 }: { projection: GeoProjection; k?: number }) {
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const visible = useBattleStore((s) => s.layers.plan);
-  if (!visible) return null;
+  const plans = useBattle().plans;
+  if (!visible || !plans) return null;
+  const { arrows: planArrows, failedFrom, stamp } = plans;
   const sc = 1 / k;
 
-  const failed =
-    selectedDay === 'all' || (selectedDay !== 'all' && selectedDay >= PLAN_FAILED_FROM);
-
-  // 스탬프 위치: 홍천 남동쪽 빈 영역 — 기본 프레이밍 안, 카투시(좌하단)와 겹치지 않게
-  const [sx, sy] = project(projection, [128.060, 37.630]);
+  const failed = selectedDay === 'all' || selectedDay >= failedFrom;
+  const stampCoord: LngLat = stamp?.coord ?? [128.060, 37.630];
+  const stampText = stamp?.text ?? '포위계획 무산';
+  const [sx, sy] = project(projection, stampCoord);
+  const stampWidth = Math.max(148, stampText.length * 17 + 24);
 
   return (
     <g aria-hidden="true">
       {planArrows.map((p) => {
         const d = lineToSmoothPath(projection, p.path);
-        const labelAt = project(projection, p.path[1]);
+        const placement = p.mapLabel;
+        const labelIndex = Math.min(p.path.length - 1, Math.max(0, placement?.index ?? 1));
+        const labelAt = project(projection, p.path[labelIndex]);
+        const showLabel =
+          k >= (placement?.minZoom ?? 0) &&
+          (selectedDay !== 'all' || (placement?.showAtAll ?? true));
         return (
           <g key={p.id} opacity={0.42}>
             <path
@@ -37,14 +42,22 @@ function PlanLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numbe
               vectorEffect="non-scaling-stroke"
               markerEnd="url(#ah-open-NK)"
             />
-            <g transform={`translate(${labelAt[0].toFixed(1)},${labelAt[1].toFixed(1)}) scale(${sc})`}>
-              <text className="map-label map-label--mono" x={8} y={14} fontSize={9.5} fill="var(--nk)">
-                {p.label}
-              </text>
-            </g>
+            {showLabel && (
+              <g transform={`translate(${labelAt[0].toFixed(1)},${labelAt[1].toFixed(1)}) scale(${sc})`}>
+                <text
+                  className="map-label map-label--mono"
+                  x={placement?.dx ?? 8}
+                  y={placement?.dy ?? 14}
+                  textAnchor={placement?.anchor ?? 'start'}
+                  fontSize={9.5}
+                  fill="var(--nk)"
+                >
+                  {placement?.text ?? p.label}
+                </text>
+              </g>
+            )}
             {failed &&
-              // path[1]은 기본 프레이밍 안, path[2]는 남서쪽 화면 밖 — 팬하면 보인다
-              [1, 2].map((idx) => {
+              [1, Math.min(2, p.path.length - 1)].map((idx) => {
                 const [x, y] = project(projection, p.path[idx]);
                 return (
                   <path
@@ -65,21 +78,21 @@ function PlanLayer({ projection, k = 1 }: { projection: GeoProjection; k?: numbe
       {failed && (
         <g
           className="fade-in"
-          transform={`translate(${sx.toFixed(1)},${sy.toFixed(1)}) scale(${sc}) rotate(-7)`}
+          transform={`translate(${sx.toFixed(1)},${sy.toFixed(1)}) scale(${(sc * (stamp?.scale ?? 1)).toFixed(3)}) rotate(${stamp?.rotate ?? -7})`}
           opacity={0.75}
         >
-          <rect x={-74} y={-19} width={148} height={38} fill="none" stroke="var(--nk)" strokeWidth={2.5} />
-          <rect x={-69} y={-14} width={138} height={28} fill="none" stroke="var(--nk)" strokeWidth={1} />
+          <rect x={-stampWidth / 2} y={-19} width={stampWidth} height={38} fill="none" stroke="var(--nk)" strokeWidth={2.5} />
+          <rect x={-stampWidth / 2 + 5} y={-14} width={stampWidth - 10} height={28} fill="none" stroke="var(--nk)" strokeWidth={1} />
           <text
             textAnchor="middle"
             dominantBaseline="central"
             fontFamily="var(--font-display)"
             fontWeight={700}
-            fontSize={16}
-            letterSpacing="0.28em"
+            fontSize={15}
+            letterSpacing="0.18em"
             fill="var(--nk)"
           >
-            포위계획 무산
+            {stampText}
           </text>
         </g>
       )}

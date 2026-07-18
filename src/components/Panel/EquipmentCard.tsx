@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { equipmentById } from '../../data/equipment';
+import { equipmentById } from '../../data/shared/equipment';
 import { useBattleStore } from '../../store/useBattleStore';
-import type { Equipment } from '../../data/equipment';
+import type { Equipment } from '../../data/shared/equipment';
 
 /** 측면 실루엣 — 야전 식별표 느낌 */
 function Silhouette({ e }: { e: Equipment }) {
@@ -82,6 +82,7 @@ export default function EquipmentCard() {
   // 실사 사진 로드 실패 시 측면 실루엣으로 폴백
   const [photoOk, setPhotoOk] = useState(true);
   useEffect(() => setPhotoOk(true), [selectedEquipId]);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!selectedEquipId) return;
@@ -92,11 +93,17 @@ export default function EquipmentCard() {
       }
     };
     window.addEventListener('keydown', onKey);
-    const prev = document.body.style.overflow;
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // 접근성: 대화상자로 포커스 이동, 닫힐 때 이전 요소로 복원
+    const prevFocus = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus({ preventScroll: true });
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevOverflow;
+      if (prevFocus && document.contains(prevFocus)) {
+        prevFocus.focus({ preventScroll: true });
+      }
     };
   }, [selectedEquipId, selectEquip]);
 
@@ -106,6 +113,8 @@ export default function EquipmentCard() {
     <div className="person-backdrop" onClick={() => selectEquip(null)}>
       <div
         className={`dossier dossier--${e.user}`}
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label={`${e.name} 제원`}

@@ -1,9 +1,43 @@
+import type { UnitPosition } from './data/battles/chuncheon/unitPositions';
+import type { PlanArrow } from './data/battles/chuncheon/plans';
+import type { CoordNote } from './data/battles/chuncheon/geo';
+
+// 전투 저작 스텁에서 쓰도록 재수출 (원 정의는 춘천 모듈)
+export type { UnitPosition } from './data/battles/chuncheon/unitPositions';
+export type { CoordNote } from './data/battles/chuncheon/geo';
+export type { Footnote } from './data/battles/chuncheon/footnotes';
+import type { Footnote } from './data/battles/chuncheon/footnotes';
+
 export type Faction = 'ROK' | 'NK';
-export type AxisId = 'chuncheon' | 'inje-hongcheon' | 'both';
+/** 전투 축선 식별자 — 전투마다 다르므로 일반화된 문자열 */
+export type AxisId = string;
 export type Outcome = 'rok' | 'nk' | 'mixed' | 'none';
 
 /** d3.geo 순서: [경도, 위도] */
 export type LngLat = [number, number];
+
+/** 전투별 지도 편집용 라벨 배치. 좌표와 라벨 위치를 분리해 충돌을 줄인다. */
+export interface MapLabelPlacement {
+  text?: string;
+  dx?: number;
+  dy?: number;
+  anchor?: 'start' | 'middle' | 'end';
+  minZoom?: number;
+  /** 전체(누적) 화면에서 라벨 표시 여부 */
+  showAtAll?: boolean;
+  /** 전체(누적) 화면에서 이동 경로 자체를 표시할지 여부 */
+  showPathAtAll?: boolean;
+  /** 마커와 이격 라벨 사이에 유도선을 표시 */
+  leader?: boolean;
+}
+
+/** 실제 DEM이 아닌 상황도용 도식 등고선. 단위는 경위도 차이값이다. */
+export interface TerrainContour {
+  rxDeg: number;
+  ryDeg: number;
+  rings?: number;
+  rotate?: number;
+}
 
 export interface MilitaryUnit {
   id: string;
@@ -34,6 +68,7 @@ export interface BattleEvent {
   significance?: string;
   tags?: string[];
   key?: boolean;                       // ★ 핵심 사건 강조
+  mapLabel?: MapLabelPlacement;
 }
 
 export interface MovementArrow {
@@ -43,6 +78,7 @@ export interface MovementArrow {
   activeFrom: string;                  // 이 날짜부터 표시 'YYYY-MM-DD'
   path: LngLat[];
   style: 'advance' | 'attack' | 'withdraw';
+  mapLabel?: MapLabelPlacement;
 }
 
 export interface FrontLine {
@@ -74,6 +110,8 @@ export interface TerrainPoint {
     note?: string;
     submerged1950?: boolean;           // 1950년엔 없었거나 이후 수몰
     uncertain?: boolean;               // 좌표 보정 필요
+    label?: MapLabelPlacement;
+    contour?: TerrainContour;
   };
 }
 
@@ -83,4 +121,102 @@ export interface TerrainLine {
   name: string;
   coordinates: LngLat[];
   approx?: boolean;                    // 도식화된 근사 linework
+  emphasis?: boolean;
+  width?: number;                      // 강 굵기(px) — 광역 전투에서 하천 과대 표현 방지
+  mapLabel?: MapLabelPlacement;
+}
+
+/** 지리 범위 (남서·북동 모서리) */
+export interface Bbox {
+  sw: LngLat;
+  ne: LngLat;
+}
+
+/** 6.25 전쟁 국면 */
+export type WarPhase = 'invasion' | 'naktong' | 'counter' | 'ccf' | 'stalemate';
+
+/** 전투 메타 — 목록·자산·스토리지 키·프레이밍의 단일 출처 */
+export interface BattleMeta {
+  id: string;                                  // URL slug·asset·스토리지 키
+  name: { ko: string; en: string };
+  phase: WarPhase;
+  dateRange: { start: string; end: string };
+  marker: LngLat;                              // 목록 지도 마커
+  summary: string;                             // 목록 카드 1~2문장
+  status: 'available' | 'planned';
+  bbox?: Bbox;                                 // available이면 필수 (구 projection.BBOX)
+  reliefBbox?: Bbox;
+  relief?: { light: string; dark: string };    // '/relief/<id>-light.png'
+  cartouche?: { title: string; en: string; sub: string; stamp?: string };
+  intro?: { headline: string; body: string };  // TitleIntro 카피 데이터화
+  /** 인셋 미니맵 — 이 전투 지점 라벨 + 서울 함락 주기 날짜 */
+  inset?: { label?: string; seoulFallDate?: string };
+}
+
+export interface BattleOverview {
+  kicker: string;
+  rok: string;
+  nk: string;
+  /** 표 머리글 재정의 — 기본은 i18n 'panel.rok'/'panel.nk' ('국군'/'북한') */
+  rokHeader?: string;
+  nkHeader?: string;
+  result: {
+    label: string;
+    note: string;
+    tone?: 'rok' | 'nk' | 'mixed';
+  };
+  /** 헤드라인 박스의 회차 표기 — 'phase' = (국면 N), 'dplus' = (D+N). 기본 phase */
+  dayCounter?: 'phase' | 'dplus';
+  /** 피해 비교 막대 — 사료 수치가 확정된 전투만 제공 */
+  stats?: {
+    rows: {
+      side: 'rok' | 'nk';
+      who: string;
+      value: string;
+      pct: number;                       // 채움 비율(0~100)
+      rangeToPct?: number;               // 집계 편차 상한(빗금 구간 끝)
+      aria: string;
+    }[];
+    note?: string;
+  };
+  /** 전선 이동 속도 차트 — 이동전 서사가 있는 전투만 제공 */
+  advance?: {
+    delayCount: number;                  // 앞쪽 '지연 구간' 막대 수
+    delayLabel: string;                  // 지연 구간 주기(注記)
+    caption: string;
+    ariaLabel: string;
+  };
+  sections: {
+    title: string;
+    paragraphs: string[];
+    note?: boolean;
+    /** 문단 뒤에 붙는 출처 링크 (shared/sources 카탈로그 id) */
+    link?: { label: string; sourceId: string };
+  }[];
+  sourceNote: string;
+}
+
+/** 한 전투의 완결된 데이터 묶음 (dynamic import 단위) */
+export interface BattleData {
+  meta: BattleMeta;
+  days: DayPhase[];
+  events: BattleEvent[];
+  movements: MovementArrow[];
+  frontLines: FrontLine[];
+  units: MilitaryUnit[];
+  unitPositionsByDate: Record<string, UnitPosition[]>;
+  terrainPoints: TerrainPoint[];
+  terrainLines: TerrainLine[];
+  boundary38: LngLat[];                          // 38선 도식 폴리라인
+  plans?: {
+    arrows: PlanArrow[];
+    failedFrom: string;
+    note: string;
+    stamp?: { text: string; coord: LngLat; rotate?: number; scale?: number };
+  };
+  overview?: BattleOverview;
+  coordNotes: Record<string, CoordNote>;
+  footnotesByEvent: Record<string, Footnote[]>;
+  eventSources: Record<string, string[]>;      // 공용 sources 카탈로그 id 참조
+  eventPeople: Record<string, string[]>;        // 공용 people 카탈로그 id 참조
 }

@@ -9,9 +9,8 @@ import {
   prefersReducedMotion,
   type Pt,
 } from '../../lib/morph';
-import { frontLines, frontLineByDate } from '../../data/frontlines';
-import { days, dayByDate } from '../../data/days';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 
 const SAMPLES = 72;
 const MORPH_MS = 700;
@@ -20,6 +19,7 @@ function FrontLineLayer({ projection, k = 1 }: { projection: GeoProjection; k?: 
   const selectedDay = useBattleStore((s) => s.selectedDay);
   const scrub = useBattleStore((s) => s.scrub);
   const visible = useBattleStore((s) => s.layers.front);
+  const { frontLines, frontLineByDate, days, dayByDate } = useBattle();
   const sc = 1 / k;
 
   /* 스크러버 드래그 중: 두 날짜의 전선을 소수 인덱스로 직접 보간 (RAF 없이 즉시) */
@@ -37,7 +37,7 @@ function FrontLineLayer({ projection, k = 1 }: { projection: GeoProjection; k?: 
     };
     const pts = lo === hi ? sample(lo) : lerpPolyline(sample(lo), sample(hi), f);
     return { pts, date: days[Math.round(scrub)].date };
-  }, [scrub, projection]);
+  }, [scrub, projection, days, frontLineByDate]);
 
   const target = useMemo(() => {
     if (selectedDay === 'all') return null;
@@ -51,7 +51,7 @@ function FrontLineLayer({ projection, k = 1 }: { projection: GeoProjection; k?: 
         SAMPLES,
       ),
     };
-  }, [selectedDay, projection]);
+  }, [selectedDay, projection, dayByDate, frontLineByDate]);
 
   const [drawn, setDrawn] = useState<Pt[] | null>(null);
   const drawnRef = useRef<Pt[] | null>(null);
@@ -114,14 +114,18 @@ function FrontLineLayer({ projection, k = 1 }: { projection: GeoProjection; k?: 
           const d = smoothPathFromPoints(pts);
           const [lx, ly] = pts[pts.length - 1];
           const label = `${Number(fl.date.slice(5, 7))}.${Number(fl.date.slice(8, 10))}`;
+          // 날짜 라벨은 처음·마지막 전선에만 — 중간 라벨이 겹겹이 쌓이는 것을 방지
+          const labeled = i === 0 || i === frontLines.length - 1;
           return (
             <g key={fl.date} opacity={0.3 + i * 0.02}>
               <path d={d} fill="none" stroke="var(--nk)" strokeWidth={1.5} strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
-              <g transform={`translate(${lx.toFixed(1)},${ly.toFixed(1)}) scale(${sc})`}>
-                <text className="map-label map-label--mono" x={5} y={3} fontSize={8.5} fill="var(--nk)">
-                  {label}
-                </text>
-              </g>
+              {labeled && (
+                <g transform={`translate(${lx.toFixed(1)},${ly.toFixed(1)}) scale(${sc})`}>
+                  <text className="map-label map-label--mono" x={5} y={3} fontSize={8.5} fill="var(--nk)">
+                    {label}
+                  </text>
+                </g>
+              )}
             </g>
           );
         })}

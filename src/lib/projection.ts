@@ -1,45 +1,28 @@
 import { geoMercator, geoPath, type GeoProjection } from 'd3-geo';
-import type { LngLat } from '../types';
+import type { Bbox, LngLat } from '../types';
 
-/**
- * 기본 프레이밍은 춘천–홍천–인제 삼각지대(화천~홍천 남쪽).
- * 횡성·원주·제천·충주 방면 철수로는 화면 밖 — 팬/줌으로 따라간다.
- */
-export const BBOX = {
-  sw: [127.60, 37.58] as LngLat,
-  ne: [128.25, 38.15] as LngLat,
-};
-
-/**
- * 음영기복 릴리프 범위 — 서울(서)·충주(남)·인제(동)·화천(북)까지 넓게 덮어
- * 팬해도 지형이 끊기지 않게 한다. (프레이밍 BBOX보다 훨씬 큼)
- */
-export const RELIEF_BBOX = {
-  sw: [126.55, 36.80] as LngLat,
-  ne: [128.65, 38.30] as LngLat,
-};
-
-const bboxFeature = {
-  type: 'Feature' as const,
-  properties: {},
-  geometry: {
-    type: 'Polygon' as const,
-    // d3-geo 구면 폴리곤: 외곽 링은 시계방향이어야 내부가 bbox가 된다
-    coordinates: [[
-      [BBOX.sw[0], BBOX.sw[1]],
-      [BBOX.sw[0], BBOX.ne[1]],
-      [BBOX.ne[0], BBOX.ne[1]],
-      [BBOX.ne[0], BBOX.sw[1]],
-      [BBOX.sw[0], BBOX.sw[1]],
-    ]],
-  },
-};
-
+/** 전투 bbox를 화면에 맞추는 Mercator 투영을 만든다. */
 export function createProjection(
   width: number,
   height: number,
+  bbox: Bbox,
   padding = 24,
 ): GeoProjection {
+  const bboxFeature = {
+    type: 'Feature' as const,
+    properties: {},
+    geometry: {
+      type: 'Polygon' as const,
+      // d3-geo 구면 폴리곤: 외곽 링은 시계방향이어야 내부가 bbox가 된다
+      coordinates: [[
+        [bbox.sw[0], bbox.sw[1]],
+        [bbox.sw[0], bbox.ne[1]],
+        [bbox.ne[0], bbox.ne[1]],
+        [bbox.ne[0], bbox.sw[1]],
+        [bbox.sw[0], bbox.sw[1]],
+      ]],
+    },
+  };
   return geoMercator().fitExtent(
     [[padding, padding], [width - padding, height - padding]],
     bboxFeature,

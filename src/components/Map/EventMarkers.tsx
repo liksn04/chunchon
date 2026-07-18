@@ -1,10 +1,8 @@
 import { memo } from 'react';
 import type { GeoProjection } from 'd3-geo';
 import { project } from '../../lib/projection';
-import { events } from '../../data/events';
-import { dayByDate } from '../../data/days';
-import { approxCoordIds } from '../../data/geo';
 import { useBattleStore } from '../../store/useBattleStore';
+import { useBattle } from '../../battles/useBattle';
 import type { Outcome } from '../../types';
 
 /** 결과별 내부 심볼 — 색+형태 이중 부호화 (색맹 대비) */
@@ -13,7 +11,6 @@ function OutcomeGlyph({ outcome }: { outcome: Outcome }) {
     case 'rok':
       return <circle r={4.4} fill="var(--rok)" />;
     case 'nk':
-      // 적군은 마름모
       return <rect x={-3.9} y={-3.9} width={7.8} height={7.8} transform="rotate(45)" fill="var(--nk)" />;
     case 'mixed':
       return (
@@ -32,20 +29,38 @@ function EventMarkers({ projection, k = 1 }: { projection: GeoProjection; k?: nu
   const selectedEventId = useBattleStore((s) => s.selectedEventId);
   const selectEvent = useBattleStore((s) => s.selectEvent);
   const visible = useBattleStore((s) => s.layers.markers);
+  const { events, dayByDate, approxCoordIds } = useBattle();
   if (!visible) return null;
-  const sc = 1 / k; // 마커·라벨 화면상 크기 고정
+  const sc = 1 / k;
 
   const activeIds =
     selectedDay === 'all' ? null : dayByDate.get(selectedDay)?.activeEventIds ?? [];
-  const shown = events.filter((e) => !activeIds || activeIds.includes(e.id));
+  // 지도 편집 스키마(mapLabel)를 제공하는 전투는 전체 보기에서 핵심 사건만 남겨
+  // 과밀을 막는다. 스키마가 없는 전투(춘천)는 종전대로 전부 표시.
+  const curated = events.some((e) => e.mapLabel);
+  const shown = events.filter((e) => {
+    if (activeIds) return activeIds.includes(e.id);
+    if (!curated) return true;
+    return (e.mapLabel?.showAtAll ?? e.key ?? false) || e.id === selectedEventId;
+  });
 
   return (
     <g>
       {shown.map((ev) => {
         const [x, y] = project(projection, ev.coord);
         const selected = ev.id === selectedEventId;
-        // 전체(누적) 모드에선 라벨 충돌을 피해 핵심 사건만 제목 표시
-        const showTitle = selectedDay !== 'all' || ev.key || selected;
+        const placement = ev.mapLabel;
+        const showAtAll = placement?.showAtAll ?? ev.key ?? false;
+        const showTitle =
+          k >= (placement?.minZoom ?? 0) &&
+          (selected || selectedDay !== 'all' || showAtAll);
+        const defaultY = ev.key || selected ? 25 : 21;
+        const dx = placement?.dx ?? 0;
+        const dy = placement?.dy ?? defaultY;
+        const anchor = placement?.anchor ?? 'middle';
+        const label = placement?.text ?? ev.title;
+        const leader = placement?.leader && (Math.abs(dx) > 10 || Math.abs(dy) > 14);
+
         return (
           <g
             key={ev.id}
@@ -66,7 +81,6 @@ function EventMarkers({ projection, k = 1 }: { projection: GeoProjection; k?: nu
               }
             }}
           >
-            {/* 히트 타깃 확장 */}
             <circle r={16} fill="transparent" />
             {ev.key && (
               <circle
@@ -87,18 +101,31 @@ function EventMarkers({ projection, k = 1 }: { projection: GeoProjection; k?: nu
             <OutcomeGlyph outcome={ev.outcome} />
             <title>{ev.title}</title>
             {showTitle && (
-              <text
-                className="map-label"
-                y={ev.key || selected ? 25 : 21}
-                textAnchor="middle"
-                fontSize={11}
-                fontWeight={ev.key ? 700 : 600}
-              >
-                {approxCoordIds.has(ev.id) && (
-                  <tspan fill="var(--ink-faint)" fontFamily="var(--font-mono)">≈ </tspan>
+              <>
+                {leader && (
+                  <path
+                    d={`M0,0 L${(dx * 0.72).toFixed(1)},${(dy * 0.72).toFixed(1)}`}
+                    fill="none"
+                    stroke="var(--ink-soft)"
+                    strokeWidth={1}
+                    strokeDasharray="2 2"
+                    opacity={0.72}
+                  />
                 )}
-                {ev.title}
-              </text>
+                <text
+                  className="map-label"
+                  x={dx}
+                  y={dy}
+                  textAnchor={anchor}
+                  fontSize={11}
+                  fontWeight={ev.key ? 700 : 600}
+                >
+                  {approxCoordIds.has(ev.id) && (
+                    <tspan fill="var(--ink-faint)" fontFamily="var(--font-mono)">≈ </tspan>
+                  )}
+                  {label}
+                </text>
+              </>
             )}
           </g>
         );

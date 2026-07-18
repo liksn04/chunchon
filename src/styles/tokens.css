@@ -18,6 +18,17 @@
   --amber: #e0a63c;             /* 그리스펜슬 앰버 (강조/선택) */
   --amber-deep: #b57f1c;
 
+  /* ── 전역도(index) 해양 — 낡은 해도 톤: 버프보다 차고 깊은 청회색 ── */
+  --sea: #c5cec9;               /* 해양 판(sheet) 바탕 */
+  --sea-line: rgba(78, 124, 128, 0.16); /* 파도 해칭·격자 (저대비) */
+
+  /* ── 국면(WarPhase) 5색 — 목록 지도 마커·필터 칩 ── */
+  --phase-invasion: var(--nk);      /* 남침기 — 북한군 공세 */
+  --phase-naktong: var(--amber-deep); /* 낙동강 방어 — 사수선 */
+  --phase-counter: var(--rok);      /* 반격·북진 — 국군/유엔군 공세 */
+  --phase-ccf: #6b3fa0;             /* 중공군 개입 — 새 교전 주체 */
+  --phase-stalemate: #4f6b3a;       /* 고지전 — 참호·능선 */
+
   /* ── 타이포 ── */
   --font-body: 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo',
     'Malgun Gothic', sans-serif;
@@ -50,6 +61,13 @@
   --amber: #e0a63c;
   --amber-deep: #f0bc5e;        /* 어두운 배경에선 강조 테두리를 더 밝게 */
   --shadow-card: 0 2px 14px rgba(0, 0, 0, 0.55);
+
+  --phase-ccf: #a97fd9;
+  --phase-stalemate: #8fae6e;
+
+  /* 야간: 지휘소 콘솔 딥네이비 해면(육지보다 어둡게) */
+  --sea: #0b1119;
+  --sea-line: rgba(143, 192, 196, 0.10);
 }
 
 :root[data-theme='dark'] .badge--rok,

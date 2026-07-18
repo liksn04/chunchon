@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useBattleStore } from '../../store/useBattleStore';
+import { getStored, setStored } from '../../lib/storage';
 
-const KEY = 'chuncheon1950-onboarded';
+// 코치마크는 전투 공통 — 앱 전체에서 1회만 (전역 키)
+const KEY = 'onboarded';
 
 const STEPS = [
   {
@@ -32,21 +34,13 @@ export default function Coachmarks() {
   const [step, setStep] = useState<number | null>(null);
 
   useEffect(() => {
-    try {
-      if (!window.localStorage.getItem(KEY)) setStep(0);
-    } catch {
-      /* localStorage 불가 환경: 표시 생략 */
-    }
+    if (!getStored(KEY)) setStep(0);
   }, []);
 
   if (step === null) return null;
 
   const close = () => {
-    try {
-      window.localStorage.setItem(KEY, '1');
-    } catch {
-      /* noop */
-    }
+    setStored(KEY, '1');
     setStep(null);
   };
   const s = STEPS[step];
